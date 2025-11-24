@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using Script.View;
 using Sirenix.Serialization;
 using UnityEngine;
@@ -127,6 +128,7 @@ namespace Script
         {
             return Cards.GetValueOrDefault(id);
         }
+        
         public CardView GetCardViewByCard(Card card)
         {
             return CardViews.GetValueOrDefault(card);
@@ -134,8 +136,21 @@ namespace Script
         
         public Combination GetCombinationByCreateBy(List<string> combination)
         {
+            Debug.Log("GetCombinationByCreateBy called");
             return allCardSo.GetCombinationByCreateBy(combination);
         }
-        
+        public CardDataSo GetCardDataByCreateBy(List<string> combination)
+        {
+            return allCardSo.GetCardDataByCreateBy(combination);
+        }
+
+
+        private void Update()
+        {
+            foreach (var card in Cards.ToList())
+            {
+                card.Value.UpdateTick();
+            }
+        }
     }
 }

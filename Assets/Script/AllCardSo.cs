@@ -1,5 +1,7 @@
 ﻿using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
+using Newtonsoft.Json;
 
 namespace Script
 {
@@ -31,42 +33,36 @@ namespace Script
             return FindCombinationMatch(combination)?.Item2;
         }
         
-        (Combination,CardDataSo)? FindCombinationMatch(List<string> combination)
+        (Combination, CardDataSo)? FindCombinationMatch(List<string> combination)
         {
+            var sortedCombination = combination.OrderBy(x => x).ToList();
+
             foreach (var cardData in allCardData)
             {
                 foreach (var createBy in cardData.CreateBy)
                 {
                     List<string> createByTypes = new List<string>();
+
                     foreach (var part in createBy.Parts)
                     {
                         for (int i = 0; i < part.Count; i++)
                         {
-                            createByTypes.Add(part.CardData.type);    
+                            createByTypes.Add(part.CardData.type);
                         }
                     }
-                    
-                    if (createByTypes.Count == combination.Count)
-                    {
-                        bool isMatch = true;
-                        foreach (var type in combination)
-                        {
-                            if (!createByTypes.Contains(type))
-                            {
-                                isMatch = false;
-                                break;
-                            }
-                        }
 
-                        if (isMatch)
-                        {
-                            return (createBy, cardData);
-                        }
+                    var sortedTypes = createByTypes.OrderBy(x => x).ToList();
+
+                    if (sortedTypes.SequenceEqual(sortedCombination))
+                    {
+                        return (createBy, cardData);
                     }
                 }
             }
 
+            Debug.Log("Null");
             return null;
         }
+
     }
 }

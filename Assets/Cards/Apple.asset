@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: aaa
+  m_Name: Apple
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: aaa
-  sprite: {fileID: 0}
+  type: Apple
+  sprite: {fileID: 10917, guid: 0000000000000000f000000000000000, type: 0}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   CreateBy: []

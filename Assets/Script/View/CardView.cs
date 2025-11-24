@@ -60,14 +60,13 @@ namespace Script.View
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            startPosition = rectTransform.position; // مهم: position نه anchoredPosition
+            startPosition = rectTransform.position; 
             startParent = transform.parent;
             
             Card bottomCard = GamePlayManager.Instance.GetCardById(thisCard.BottomCardId);
             if (bottomCard != null)
             {
-                GamePlayManager.Instance.GetCardViewByCard(bottomCard).thisCard.TopCardId = 0;
-                thisCard.BottomCardId = 0;
+                GamePlayManager.Instance.GetCardViewByCard(bottomCard).thisCard.RemoveFromGroup(thisCard);
             }
 
             transform.SetAsLastSibling();
@@ -84,7 +83,7 @@ namespace Script.View
             if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
                     rectTransform,
                     eventData.position,
-                    eventData.pressEventCamera, // برای World Space خیلی مهمه
+                    eventData.pressEventCamera,
                     out var worldPoint))
             {
                 rectTransform.position = worldPoint;
@@ -97,7 +96,6 @@ namespace Script.View
             canvasGroup.alpha = 1f;
             thisCard.Position = transform.position;
 
-            // نقطه: وسط کارت
             Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(
                 eventData.pressEventCamera,
                 rectTransform.position);
