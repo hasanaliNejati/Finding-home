@@ -15,6 +15,7 @@ MonoBehaviour:
   type: Pole
   sprite: {fileID: -8038976213705442086, guid: 9cc5fda7c7d229d4fb58b6feded86df6, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy:
   - duration: 2
     Parts:

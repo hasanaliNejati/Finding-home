@@ -10,12 +10,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Rock
+  m_Name: Coin
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Rock
-  sprite: {fileID: 7028616704906629411, guid: d8f091448f0d5e042bd4bd6587cb4b6f, type: 3}
+  type: Coin
+  sprite: {fileID: 10901, guid: 0000000000000000f000000000000000, type: 0}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy: []
-  maxCombinationUses: 2
+  maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

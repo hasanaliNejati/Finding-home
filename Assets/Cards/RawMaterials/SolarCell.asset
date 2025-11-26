@@ -15,6 +15,7 @@ MonoBehaviour:
   type: SolarCell
   sprite: {fileID: 4113829005332862926, guid: 9875a2ff8b32eae48bd1cc1a76809245, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy: []
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

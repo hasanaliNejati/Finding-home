@@ -15,6 +15,7 @@ MonoBehaviour:
   type: FishCan
   sprite: {fileID: 2960402581040015946, guid: 073cf33ee2d87ef4894b7637aea8f125, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy:
   - duration: 5
     Parts:

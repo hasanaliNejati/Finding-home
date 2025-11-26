@@ -15,6 +15,7 @@ MonoBehaviour:
   type: CanFactory
   sprite: {fileID: 5181654206020448988, guid: 70db7a4314e7e9b469b24739d29942e7, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy:
   - duration: 2
     Parts:

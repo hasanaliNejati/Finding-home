@@ -15,6 +15,7 @@ MonoBehaviour:
   type: Engine
   sprite: {fileID: 8288426215254106694, guid: 80a598f506cb0444a90aea824818fdf8, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy: []
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

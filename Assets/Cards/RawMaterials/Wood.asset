@@ -15,6 +15,7 @@ MonoBehaviour:
   type: Wood
   sprite: {fileID: -5622901713081898559, guid: 6400fca644fc00549b2c413fbbc97fe6, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy:
   - duration: 2
     Parts:

@@ -18,6 +18,7 @@ public class Card
     public int TopCardId;
     public int BottomCardId;
     public int CombinationUses;
+    public int Value;
 
     public Vec3 Position;
 
@@ -122,7 +123,16 @@ public class Card
         }
 
         var newCard = CardFactory.CreateCard(result, 0);
-        GamePlayManager.Instance.AddCard(newCard, this.Position);
+        
+        // Add random offset to spawn position
+        Vector3 randomOffset = new Vector3(
+            UnityEngine.Random.Range(-1.5f, 1.5f),
+            UnityEngine.Random.Range(-1.5f, 1.5f),
+            0f
+        );
+        Vector3 spawnPosition = (Vector3)this.Position + randomOffset;
+        
+        GamePlayManager.Instance.AddCard(newCard, spawnPosition);
 
         foreach (var item in GetAllTopCardsInGroup())
         {
@@ -133,12 +143,13 @@ public class Card
     public virtual void CombinedComplete()
     {
         CombinationUses++;
-        DetachFromNeighbors();
-
         HandleUpgradeIfNeeded();
 
         if (ShouldDestroyAfterCombination())
         {
+            // Only detach from neighbors if this card is being destroyed
+            // This keeps surviving cards connected for the next process
+            DetachFromNeighbors();
             GamePlayManager.Instance.RemoveCard(Id);
         }
         else
@@ -154,6 +165,7 @@ public class Card
     {
         Data = cardDataSo;
         Type = cardDataSo.type;
+        Value = cardDataSo.value;
     }
 
     void HandleUpgradeIfNeeded()

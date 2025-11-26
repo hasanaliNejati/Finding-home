@@ -24,6 +24,7 @@ namespace Script.View
         [SerializeReference] public Card thisCard;
         [SerializeField] public float speedLerp = 10f;
         [SerializeField] public Slider progressSlider;
+        [SerializeField] public TextMeshProUGUI valueText; 
 
 
         public Vector3 GroupOffset = new Vector3(0, -0.1f, -0.1f);
@@ -60,6 +61,7 @@ namespace Script.View
 
             spriteRenderer.sprite = cardDataSo.sprite;
             nameText.text = cardDataSo.type;
+            valueText.text = cardDataSo.value.ToString();
         }
 
         public void OnPointerClick(PointerEventData eventData)
@@ -67,6 +69,7 @@ namespace Script.View
             Debug.Log("Clicked: " + nameText.text);
             OnClick();
         }
+        
 
         public virtual void OnClick()
         {
@@ -123,6 +126,25 @@ namespace Script.View
             var topCards = TopCardViews();
             foreach (var hit in results)
             {
+                // Check for SellZone first
+                var sellZone = hit.gameObject.GetComponent<SellZone>();
+                if (sellZone != null)
+                {
+                    sellZone.SellCard(this);
+                    return; // Card is sold, exit early
+                }
+                
+                // Check for ShopZone
+                var shopZone = hit.gameObject.GetComponent<ShopZone>();
+                if (shopZone != null)
+                {
+                    if (shopZone.TryPurchase(this))
+                    {
+                        return; // Purchase processed, exit early
+                    }
+                    // If purchase failed (wrong card type), continue checking other targets
+                }
+                
                 var slot = hit.gameObject.GetComponent<CardView>();
                 if (slot != null && slot != this && !topCards.Contains(slot))
                 {

@@ -15,6 +15,7 @@ MonoBehaviour:
   type: Generator
   sprite: {fileID: -6270953770400647376, guid: b963a5fc7e408e7408b086dc10877c94, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy: []
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

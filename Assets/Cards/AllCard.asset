@@ -13,6 +13,7 @@ MonoBehaviour:
   m_Name: AllCard
   m_EditorClassIdentifier: Assembly-CSharp::Script.AllCardSo
   allCardData:
+  - {fileID: 11400000, guid: bd3b31797514284479d953543bef78e4, type: 2}
   - {fileID: 11400000, guid: 35a1c60d48252f04dae06dbbfc4eaa34, type: 2}
   - {fileID: 11400000, guid: fa003bfe1334a6e4ca47c84a73f45de2, type: 2}
   - {fileID: 11400000, guid: fb80374b42e6fea4daf092f7c0dde76d, type: 2}
@@ -24,15 +25,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 2e18ec944b435f841b2f69e551ef1345, type: 2}
   - {fileID: 11400000, guid: 4e6925288608c0143b9e5b3abd3c7a6b, type: 2}
   - {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+  - {fileID: 11400000, guid: 7a180c37c685be445b8292c9b94a6f28, type: 2}
   - {fileID: 11400000, guid: a44bd6fee5e204540b1ced3cf2ca95fc, type: 2}
   - {fileID: 11400000, guid: ba1c4c5426d616c4db45fe9105d831b2, type: 2}
+  - {fileID: 11400000, guid: b7aeeb750e89f554bac8d923b71fb54d, type: 2}
+  - {fileID: 11400000, guid: d81afbb40ffb9be488235be7270bdaa4, type: 2}
   - {fileID: 11400000, guid: b04746e25bfaedc4ba08bd6b97909586, type: 2}
+  - {fileID: 11400000, guid: 184f4bd33309d2b4d835a137bdc10ba4, type: 2}
   - {fileID: 11400000, guid: 63c3e0eb77632df49923efec856ccf2f, type: 2}
   - {fileID: 11400000, guid: 9338470c3c7cdbb40b00422c135e896c, type: 2}
-  - {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
-  - {fileID: 11400000, guid: b7aeeb750e89f554bac8d923b71fb54d, type: 2}
-  - {fileID: 11400000, guid: 7a180c37c685be445b8292c9b94a6f28, type: 2}
-  - {fileID: 11400000, guid: bd3b31797514284479d953543bef78e4, type: 2}
-  - {fileID: 11400000, guid: d81afbb40ffb9be488235be7270bdaa4, type: 2}
-  - {fileID: 11400000, guid: 184f4bd33309d2b4d835a137bdc10ba4, type: 2}
   - {fileID: 11400000, guid: f6e0cd1b6f3a4e641b8ba3fca79b106d, type: 2}
+  - {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}

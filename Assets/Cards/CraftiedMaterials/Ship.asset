@@ -15,6 +15,7 @@ MonoBehaviour:
   type: Ship
   sprite: {fileID: -30749221642623036, guid: 7df52c5cd0844c6409795f5045562be5, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy:
   - duration: 5
     Parts:

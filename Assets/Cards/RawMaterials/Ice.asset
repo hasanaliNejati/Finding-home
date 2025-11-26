@@ -15,6 +15,7 @@ MonoBehaviour:
   type: Ice
   sprite: {fileID: -1045133410153605164, guid: 09bd823e9716bac47891b1fe3d90ef14, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  value: 1
   CreateBy:
   - duration: 3
     Parts:

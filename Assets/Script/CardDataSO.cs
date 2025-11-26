@@ -11,6 +11,7 @@ namespace Script
         public string type;
         public Sprite sprite;
         public CardView cardViewPrefab;
+        public int value;
         public List<Combination> CreateBy = new List<Combination>();
 
         [Tooltip("How many successful combinations this card can participate in before it is destroyed. -1 means infinite uses.")]

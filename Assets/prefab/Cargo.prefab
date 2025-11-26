@@ -101,6 +101,17 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 5885591681658482614}
   m_SourcePrefab: {fileID: 100100000, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+--- !u!114 &3514511472413366109 stripped
+MonoBehaviour:
+  m_CorrespondingSourceObject: {fileID: 5915857262853499982, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  m_PrefabInstance: {fileID: 7124506894768012051}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f4688fdb7df04437aeb418b961361dc5, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Unity.TextMeshPro::TMPro.TextMeshProUGUI
 --- !u!114 &4354062996906818110 stripped
 MonoBehaviour:
   m_CorrespondingSourceObject: {fileID: 6824053479975829805, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
@@ -135,6 +146,7 @@ MonoBehaviour:
     rid: -2
   speedLerp: 10
   progressSlider: {fileID: 4354062996906818110}
+  valueText: {fileID: 3514511472413366109}
   GroupOffset: {x: 0, y: -0.1, z: -0.1}
   randPosAroundRatio: 2
   references:
