@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
+  m_Name: Pini
+  m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
+  type: Pini
+  sprite: {fileID: 0}
+  cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  CreateBy: []
+  maxCombinationUses: 100
+  upgradeTarget: {fileID: 0}

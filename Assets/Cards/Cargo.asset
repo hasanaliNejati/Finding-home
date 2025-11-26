@@ -15,9 +15,19 @@ MonoBehaviour:
   type: cargo
   sprite: {fileID: 0}
   cardViewPrefab: {fileID: 5885591681658482614, guid: c03f9cb1d5f17a7459be9d6ea792d5a8, type: 3}
-  CreateBy: []
+  CreateBy:
+  - duration: 2
+    Parts: []
+  maxCombinationUses: 1
+  upgradeTarget: {fileID: 0}
+  minimumCargoCount: 5
+  maximumCargoCount: 5
   cargoCardRatioItems:
   - cardData: {fileID: 11400000, guid: ba1c4c5426d616c4db45fe9105d831b2, type: 2}
     ratio: 10
   - cardData: {fileID: 11400000, guid: fb80374b42e6fea4daf092f7c0dde76d, type: 2}
     ratio: 10
+  - cardData: {fileID: 11400000, guid: 9338470c3c7cdbb40b00422c135e896c, type: 2}
+    ratio: 100
+  - cardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+    ratio: 100
