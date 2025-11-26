@@ -28,7 +28,7 @@ namespace Script
                     current += item.ratio;
                     if (randomValue <= current)
                     {
-                        rewardCards.Add(new Card(item.cardData, -1));
+                        rewardCards.Add(CardFactory.CreateCard(item.cardData, -1));
                         break;
                     }
                 }

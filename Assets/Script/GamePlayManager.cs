@@ -38,7 +38,7 @@ namespace Script
             {
                 if (cardDataSo is CargoDataSo cargoDataSo)
                 {
-                    CargoCard cargoCard = new CargoCard(cargoDataSo, cardIdCounter++);
+                    var cargoCard = CardFactory.CreateCard(cargoDataSo, cardIdCounter++);
                     Cards.Add(cargoCard.Id, cargoCard);
                     GenerateVisualCard(cargoCard);
                 }
@@ -51,7 +51,7 @@ namespace Script
             var cardData = allCardSo.GetCardDataByType(type);
             if (cardData != null)
             {
-                Card card = new Card(cardData, cardIdCounter++);
+                Card card = CardFactory.CreateCard(cardData, cardIdCounter++);
                 Cards.Add(card.Id, card);
                 GenerateVisualCard(card);
                 RefreshDeletedCards();
@@ -89,7 +89,7 @@ namespace Script
 
         public void GenerateVisualCard(Card card)
         {
-            var cardData = allCardSo.GetCardDataByType(card.Type);
+            var cardData = card.Data ?? allCardSo.GetCardDataByType(card.Type);
             var cardView = Instantiate(cardData.cardViewPrefab, cardParentTransform);
             cardView.Init(card, cardData);
             CardViews.Add(card, cardView);
@@ -150,6 +150,18 @@ namespace Script
             foreach (var card in Cards.ToList())
             {
                 card.Value.UpdateTick();
+            }
+        }
+
+        public void RefreshVisualCard(Card card)
+        {
+            if (card == null)
+                return;
+
+            if (CardViews.TryGetValue(card, out var cardView))
+            {
+                var cardData = card.Data ?? allCardSo.GetCardDataByType(card.Type);
+                cardView.Refresh(card, cardData);
             }
         }
     }

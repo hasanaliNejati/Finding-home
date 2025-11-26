@@ -8,15 +8,16 @@ public class Card
 {
     public Card(CardDataSo cardDataSo, int id)
     {
-        Type = cardDataSo.type;
         Id = id;
+        ApplyData(cardDataSo);
     }
 
-
+    public CardDataSo Data { get; private set; }
     public string Type;
     public int Id;
     public int TopCardId;
     public int BottomCardId;
+    public int CombinationUses;
 
     public Vec3 Position;
 
@@ -47,24 +48,19 @@ public class Card
         var bottom = GamePlayManager.Instance.GetCardById(BottomCardId);
         if (bottom != null)
         {
-            Debug.Log("null");
             TargetProcessTime = 0;
             bottom.CheckCombination();
             return;
         }
 
-        Debug.Log("check combination");
-
         var combination = GamePlayManager.Instance.GetCombinationByCreateBy(GetAllTopTypesInGroup());
 
         if (combination != null)
         {
-            Debug.Log("found combination for " + Type);
             TargetProcessTime = combination.duration;
         }
         else
         {
-            Debug.Log("no combination found for " + Type);
             TargetProcessTime = 0;
         }
     }
@@ -116,23 +112,91 @@ public class Card
     public virtual void ProcessComplete()
     {
         var result = GamePlayManager.Instance.GetCardDataByCreateBy(GetAllTopTypesInGroup());
-        var newCard = new Card(result, 0);
+        if (result == null)
+        {
+            Debug.LogWarning($"Combination result not found for stack: {string.Join(",", GetAllTopTypesInGroup())}");
+            TargetProcessTime = 0;
+            ProcessTime = 0;
+            CheckCombination();
+            return;
+        }
+
+        var newCard = CardFactory.CreateCard(result, 0);
         GamePlayManager.Instance.AddCard(newCard, this.Position);
 
         foreach (var item in GetAllTopCardsInGroup())
         {
             item.CombinedComplete();
         }
-        
-        
-
-        //GamePlayManager.Instance.RemoveCard(this.Id);
-
     }
     
-    public void CombinedComplete()
+    public virtual void CombinedComplete()
     {
-        GamePlayManager.Instance.RemoveCard(Id);
+        CombinationUses++;
+        DetachFromNeighbors();
+
+        HandleUpgradeIfNeeded();
+
+        if (ShouldDestroyAfterCombination())
+        {
+            GamePlayManager.Instance.RemoveCard(Id);
+        }
+        else
+        {
+            ProcessTime = 0;
+            TargetProcessTime = 0;
+            CheckCombination();
+            GamePlayManager.Instance.RefreshVisualCard(this);
+        }
+    }
+
+    void ApplyData(CardDataSo cardDataSo)
+    {
+        Data = cardDataSo;
+        Type = cardDataSo.type;
+    }
+
+    void HandleUpgradeIfNeeded()
+    {
+        if (Data == null || Data.upgradeTarget == null)
+            return;
+
+        ApplyData(Data.upgradeTarget);
+    }
+
+    bool ShouldDestroyAfterCombination()
+    {
+        if (Data == null)
+            return true;
+
+        if (Data.maxCombinationUses < 0)
+            return false;
+
+        return CombinationUses >= Mathf.Max(1, Data.maxCombinationUses);
+    }
+
+    void DetachFromNeighbors()
+    {
+        if (TopCardId != 0)
+        {
+            var top = GamePlayManager.Instance.GetCardById(TopCardId);
+            if (top != null)
+            {
+                top.BottomCardId = BottomCardId;
+            }
+        }
+
+        if (BottomCardId != 0)
+        {
+            var bottom = GamePlayManager.Instance.GetCardById(BottomCardId);
+            if (bottom != null)
+            {
+                bottom.TopCardId = TopCardId;
+            }
+        }
+
+        TopCardId = 0;
+        BottomCardId = 0;
     }
     
 }

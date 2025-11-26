@@ -43,9 +43,23 @@ namespace Script.View
         public void Init(Card card, CardDataSo cardDataSo)
         {
             thisCard = card;
+            ApplyData(cardDataSo);
+            transform.position = card.Position;
+        }
+
+        public void Refresh(Card card, CardDataSo cardDataSo)
+        {
+            thisCard = card;
+            ApplyData(cardDataSo);
+        }
+
+        void ApplyData(CardDataSo cardDataSo)
+        {
+            if (cardDataSo == null)
+                return;
+
             spriteRenderer.sprite = cardDataSo.sprite;
             nameText.text = cardDataSo.type;
-            transform.position = card.Position;
         }
 
         public void OnPointerClick(PointerEventData eventData)
