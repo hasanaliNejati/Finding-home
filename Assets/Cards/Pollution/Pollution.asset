@@ -10,15 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: FishSallad
+  m_Name: Pollution
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: FishSalad
-  sprite: {fileID: 10911, guid: 0000000000000000f000000000000000, type: 0}
+  type: Pollution
+  sprite: {fileID: 4130640169021434097, guid: 17205339644ced1428ef972ee400ca6d, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-  CreateBy:
-  - duration: 5
-    Parts:
-    - CardData: {fileID: 11400000, guid: fb80374b42e6fea4daf092f7c0dde76d, type: 2}
-      Count: 1
-    - CardData: {fileID: 11400000, guid: ba1c4c5426d616c4db45fe9105d831b2, type: 2}
-      Count: 2
+  CreateBy: []
+  maxCombinationUses: 1
+  upgradeTarget: {fileID: 0}

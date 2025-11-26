@@ -10,17 +10,15 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Log
+  m_Name: Pole
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Log
-  sprite: {fileID: 0}
+  type: Pole
+  sprite: {fileID: -8038976213705442086, guid: 9cc5fda7c7d229d4fb58b6feded86df6, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   CreateBy:
-  - duration: 3
+  - duration: 2
     Parts:
-    - CardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
-      Count: 1
-    - CardData: {fileID: 11400000, guid: 9338470c3c7cdbb40b00422c135e896c, type: 2}
-      Count: 1
+    - CardData: {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
+      Count: 2
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

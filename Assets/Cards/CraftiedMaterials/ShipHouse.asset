@@ -1,0 +1,34 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
+  m_Name: ShipHouse
+  m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
+  type: ShipHouse
+  sprite: {fileID: 5272401415994956661, guid: b6f9de843ad850945a8381a53f18dea7, type: 3}
+  cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+  CreateBy:
+  - duration: 2
+    Parts:
+    - CardData: {fileID: 11400000, guid: b7aeeb750e89f554bac8d923b71fb54d, type: 2}
+      Count: 1
+    - CardData: {fileID: 11400000, guid: f6e0cd1b6f3a4e641b8ba3fca79b106d, type: 2}
+      Count: 2
+    - CardData: {fileID: 11400000, guid: 184f4bd33309d2b4d835a137bdc10ba4, type: 2}
+      Count: 1
+    - CardData: {fileID: 11400000, guid: 32042f19eba1ec24d98cbd3e748c45dc, type: 2}
+      Count: 1
+    - CardData: {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
+      Count: 2
+    - CardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+      Count: 1
+  maxCombinationUses: 1
+  upgradeTarget: {fileID: 0}

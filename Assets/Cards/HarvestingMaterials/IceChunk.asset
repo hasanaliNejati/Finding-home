@@ -10,11 +10,11 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Pini
+  m_Name: IceChunk
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Pini
-  sprite: {fileID: -855298285791758126, guid: 905746595a030614e8e6ca7576fe2a35, type: 3}
+  type: IceChunk
+  sprite: {fileID: -5750353039905602045, guid: 36f024354f83b80479f8a44a8352adfa, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   CreateBy: []
-  maxCombinationUses: 100
+  maxCombinationUses: 2
   upgradeTarget: {fileID: 0}

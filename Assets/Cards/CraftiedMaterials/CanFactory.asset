@@ -10,11 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Pini
+  m_Name: CanFactory
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Pini
-  sprite: {fileID: -855298285791758126, guid: 905746595a030614e8e6ca7576fe2a35, type: 3}
+  type: CanFactory
+  sprite: {fileID: 5181654206020448988, guid: 70db7a4314e7e9b469b24739d29942e7, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-  CreateBy: []
+  CreateBy:
+  - duration: 2
+    Parts:
+    - CardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+      Count: 1
+    - CardData: {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
+      Count: 3
+    - CardData: {fileID: 11400000, guid: 63c3e0eb77632df49923efec856ccf2f, type: 2}
+      Count: 2
+    - CardData: {fileID: 11400000, guid: 32042f19eba1ec24d98cbd3e748c45dc, type: 2}
+      Count: 1
   maxCombinationUses: 100
   upgradeTarget: {fileID: 0}

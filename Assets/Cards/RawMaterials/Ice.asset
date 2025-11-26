@@ -10,11 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Pini
+  m_Name: Ice
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Pini
-  sprite: {fileID: -855298285791758126, guid: 905746595a030614e8e6ca7576fe2a35, type: 3}
+  type: Ice
+  sprite: {fileID: -1045133410153605164, guid: 09bd823e9716bac47891b1fe3d90ef14, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-  CreateBy: []
-  maxCombinationUses: 100
+  CreateBy:
+  - duration: 3
+    Parts:
+    - CardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+      Count: 1
+    - CardData: {fileID: 11400000, guid: 2e18ec944b435f841b2f69e551ef1345, type: 2}
+      Count: 1
+  maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

@@ -10,11 +10,17 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Pini
+  m_Name: FishCan
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Pini
-  sprite: {fileID: -855298285791758126, guid: 905746595a030614e8e6ca7576fe2a35, type: 3}
+  type: FishCan
+  sprite: {fileID: 2960402581040015946, guid: 073cf33ee2d87ef4894b7637aea8f125, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-  CreateBy: []
-  maxCombinationUses: 100
+  CreateBy:
+  - duration: 5
+    Parts:
+    - CardData: {fileID: 11400000, guid: 63c3e0eb77632df49923efec856ccf2f, type: 2}
+      Count: 1
+    - CardData: {fileID: 11400000, guid: fb80374b42e6fea4daf092f7c0dde76d, type: 2}
+      Count: 1
+  maxCombinationUses: 1
   upgradeTarget: {fileID: 0}
