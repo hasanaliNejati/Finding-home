@@ -71,20 +71,28 @@ namespace Script.View
                 GamePlayManager.Instance.RemoveCard(c.Id);
             }
 
-            // Create reward cards equal to total value
+            // Random offset for the group
+            Vector3 randomOffset = new Vector3(
+                Random.Range(-spawnOffsetRange, spawnOffsetRange),
+                Random.Range(-spawnOffsetRange, spawnOffsetRange),
+                0f
+            );
+            Vector3 spawnPosition = spawnCenter + randomOffset;
+
+            // Create reward cards equal to total value and group them together
+            Card bottomCard = null;
             for (int i = 0; i < totalValue; i++)
             {
                 var newCard = CardFactory.CreateCard(rewardCardType, 0);
-                
-                // Random offset for each spawned card
-                Vector3 randomOffset = new Vector3(
-                    Random.Range(-spawnOffsetRange, spawnOffsetRange),
-                    Random.Range(-spawnOffsetRange, spawnOffsetRange),
-                    0f
-                );
-                
-                Vector3 spawnPosition = spawnCenter + randomOffset;
                 GamePlayManager.Instance.AddCard(newCard, spawnPosition);
+                
+                // Group cards together
+                if (bottomCard != null)
+                {
+                    bottomCard.AddToGroup(newCard);
+                }
+                
+                bottomCard = newCard;
             }
 
             Debug.Log($"[SellZone] Sold {cardsToSell.Count} card(s) for {totalValue} {rewardCardType.type}(s)");

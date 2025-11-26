@@ -1090,7 +1090,7 @@ GameObject:
   - component: {fileID: 1984880476}
   - component: {fileID: 1984880475}
   - component: {fileID: 1984880474}
-  - component: {fileID: 1984880473}
+  - component: {fileID: 1984880477}
   m_Layer: 0
   m_Name: Main Camera
   m_TagString: MainCamera
@@ -1098,18 +1098,6 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!114 &1984880473
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 1984880472}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 9cfacbf44a5702549ab5481ebcda8fe8, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: Assembly-CSharp::CameraController
 --- !u!81 &1984880474
 AudioListener:
   m_ObjectHideFlags: 0
@@ -1184,6 +1172,28 @@ Transform:
   m_Children: []
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &1984880477
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 1984880472}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 07735cc89d9314a48ba9a33ccd4c9c42, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Script.CameraController
+  panButton: 0
+  panSpeed: 1
+  invertPan: 0
+  zoomSpeed: 5
+  minZoom: 2
+  maxZoom: 20
+  zoomSmoothSpeed: 10
+  useBounds: 0
+  minBounds: {x: -50, y: -50}
+  maxBounds: {x: 50, y: 50}
 --- !u!1660057539 &9223372036854775807
 SceneRoots:
   m_ObjectHideFlags: 0
