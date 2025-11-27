@@ -14,6 +14,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
   type: ShipHouse
   sprite: {fileID: 5272401415994956661, guid: b6f9de843ad850945a8381a53f18dea7, type: 3}
+  category: 0
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy:
@@ -29,7 +30,7 @@ MonoBehaviour:
       Count: 1
     - CardData: {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
       Count: 2
-    - CardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+    - CardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
       Count: 1
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

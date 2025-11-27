@@ -14,12 +14,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
   type: Log
   sprite: {fileID: -4178046375966092550, guid: 25ae08f5a30c5b841a70816fc9a1b12c, type: 3}
+  category: 0
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy:
   - duration: 3
     Parts:
-    - CardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
+    - CardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
       Count: 1
     - CardData: {fileID: 11400000, guid: 9338470c3c7cdbb40b00422c135e896c, type: 2}
       Count: 1

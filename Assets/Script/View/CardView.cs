@@ -41,14 +41,14 @@ namespace Script.View
             parentCanvas = GetComponentInParent<Canvas>();
         }
 
-        public void Init(Card card, CardDataSo cardDataSo)
+        public virtual void Init(Card card, CardDataSo cardDataSo)
         {
             thisCard = card;
             ApplyData(cardDataSo);
             transform.position = card.Position;
         }
 
-        public void Refresh(Card card, CardDataSo cardDataSo)
+        public virtual void Refresh(Card card, CardDataSo cardDataSo)
         {
             thisCard = card;
             ApplyData(cardDataSo);
@@ -150,8 +150,13 @@ namespace Script.View
                 {
                     if(GamePlayManager.Instance.GetCardById(slot.thisCard.TopCardId) != null)
                         continue;
-                    slot.thisCard.AddToGroup(thisCard);
-                    break;
+                    
+                    // Try to add to group - may fail if Pini restrictions apply
+                    if (slot.thisCard.AddToGroup(thisCard))
+                    {
+                        break; // Successfully merged
+                    }
+                    // If merge failed, continue checking other slots
                 }
             }
         }
@@ -172,6 +177,11 @@ namespace Script.View
         }
 
         private void Update()
+        {
+            UpdateView();
+        }
+
+        protected virtual void UpdateView()
         {
             if (thisCard == null)
                 return;

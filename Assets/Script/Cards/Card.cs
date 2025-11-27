@@ -30,11 +30,52 @@ public class Card
         return false;
     }
 
-    public void AddToGroup(Card topCard)
+    public bool AddToGroup(Card topCard)
     {
+        // Check if this card (bottom) is a PiniCard and can merge with topCard
+        if (this is PiniCard pini)
+        {
+            if (!pini.CanMergeWith(topCard))
+                return false;
+        }
+
+        // Check if topCard is a hungry PiniCard - can only merge with food
+        if (topCard is PiniCard topPini)
+        {
+            if (!topPini.CanBePlacedOn(this))
+                return false;
+        }
+
+        // Check if topCard is being placed on a PiniCard
+        // Also check the entire stack for any PiniCard that might reject this merge
+        var currentCard = this;
+        while (currentCard != null)
+        {
+            if (currentCard is PiniCard piniInStack && !piniInStack.CanMergeWith(topCard))
+                return false;
+            currentCard = GamePlayManager.Instance.GetCardById(currentCard.BottomCardId);
+        }
+
         topCard.BottomCardId = this.Id;
         this.TopCardId = topCard.Id;
-        CheckCombination();
+
+        // If this (bottom) is a PiniCard and topCard is food, start eating
+        if (this is PiniCard piniCard && topCard.Data?.category == Script.CardCategory.Food)
+        {
+            piniCard.OnCardAddedOnTop(topCard);
+        }
+        // If topCard is a PiniCard and this (bottom) is food, start eating
+        else if (topCard is PiniCard _topPini && this.Data?.category == Script.CardCategory.Food)
+        {
+            _topPini.OnFoodBelow(this);
+            
+        }
+        else
+        {
+            CheckCombination();
+        }
+
+        return true;
     }
 
     public void RemoveFromGroup(Card topCard)

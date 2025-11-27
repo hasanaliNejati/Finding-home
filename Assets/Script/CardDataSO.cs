@@ -10,6 +10,7 @@ namespace Script
     {
         public string type;
         public Sprite sprite;
+        public CardCategory category = CardCategory.None;
         public CardView cardViewPrefab;
         public int value;
         public List<Combination> CreateBy = new List<Combination>();

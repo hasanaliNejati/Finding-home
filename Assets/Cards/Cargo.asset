@@ -14,7 +14,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::Script.CargoDataSo
   type: cargo
   sprite: {fileID: 0}
+  category: 0
   cardViewPrefab: {fileID: 5885591681658482614, guid: c03f9cb1d5f17a7459be9d6ea792d5a8, type: 3}
+  value: 0
   CreateBy:
   - duration: 2
     Parts: []
@@ -29,8 +31,6 @@ MonoBehaviour:
     ratio: 10
   - cardData: {fileID: 11400000, guid: 9338470c3c7cdbb40b00422c135e896c, type: 2}
     ratio: 30
-  - cardData: {fileID: 11400000, guid: 6ee0479e3eda08b4ba839ebc01c0dc3d, type: 2}
-    ratio: 10
   - cardData: {fileID: 11400000, guid: fa003bfe1334a6e4ca47c84a73f45de2, type: 2}
     ratio: 10
   - cardData: {fileID: 11400000, guid: 2e18ec944b435f841b2f69e551ef1345, type: 2}

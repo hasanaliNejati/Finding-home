@@ -9,6 +9,7 @@ namespace Script
 
             return data switch
             {
+                PiniDataSo pini => new PiniCard(pini, id),
                 CargoDataSo cargo => new CargoCard(cargo, id),
                 _ => new Card(data, id)
             };
