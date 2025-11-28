@@ -95,10 +95,11 @@ namespace Script.View
                 // Create reward card
                 var newCard = CardFactory.CreateCard(rewardCardType, 0);
                 
+                // Random offset on X-Z plane for top-down view
                 Vector3 randomOffset = new Vector3(
                     Random.Range(-spawnOffsetRange, spawnOffsetRange),
-                    Random.Range(-spawnOffsetRange, spawnOffsetRange),
-                    0f
+                    0f,
+                    Random.Range(-spawnOffsetRange, spawnOffsetRange)
                 );
                 
                 Vector3 spawnPosition = transform.position + randomOffset;

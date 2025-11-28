@@ -82,10 +82,10 @@ namespace Script.View
             UpdateHungerVisual();
 
             // Show eating progress
-            if (piniCard.IsEating && progressSlider != null)
+            if (piniCard.IsEating && viewData.progressSlider != null)
             {
-                progressSlider.gameObject.SetActive(true);
-                progressSlider.value = piniCard.EatingProgress / piniCard.EatingDuration;
+                viewData.progressSlider.gameObject.SetActive(true);
+                viewData.progressSlider.value = piniCard.EatingProgress / piniCard.EatingDuration;
             }
         }
 

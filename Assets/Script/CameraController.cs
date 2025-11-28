@@ -12,10 +12,10 @@ namespace Script
         [SerializeField] private bool invertPan = false;
 
         [Header("Zoom Settings (Perspective)")]
-        [Tooltip("For perspective camera: controls Z position")]
+        [Tooltip("For perspective camera: controls Y position (height above ground)")]
         [SerializeField] private float zoomSpeed = 5f;
-        [SerializeField] private float minZoomDistance = -20f;
-        [SerializeField] private float maxZoomDistance = -2f;
+        [SerializeField] private float minZoomDistance = 2f;
+        [SerializeField] private float maxZoomDistance = 20f;
         
         [Header("Zoom Settings (Orthographic)")]
         [Tooltip("For orthographic camera: controls orthographic size")]
@@ -49,7 +49,8 @@ namespace Script
             }
             else
             {
-                targetZoom = transform.position.z;
+                // For top-down view, Y is the height above ground
+                targetZoom = transform.position.y;
             }
         }
 
@@ -104,15 +105,16 @@ namespace Script
                 }
                 else
                 {
-                    // For perspective camera, calculate based on distance from camera
-                    float distance = Mathf.Abs(transform.position.z);
+                    // For perspective camera (top-down), calculate based on height above ground
+                    float distance = Mathf.Abs(transform.position.y);
                     screenToWorldRatio = distance * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad) * 2f / Screen.height;
                 }
                 
+                // Movement on X-Z plane (cards are on the ground)
                 Vector3 move = new Vector3(
                     -difference.x * screenToWorldRatio * panSpeed,
-                    -difference.y * screenToWorldRatio * panSpeed,
-                    0f
+                    0f,
+                    -difference.y * screenToWorldRatio * panSpeed
                 );
 
                 if (invertPan)
@@ -163,18 +165,18 @@ namespace Script
             }
             else
             {
-                // Perspective camera - adjust Z position
+                // Perspective camera (top-down) - adjust Y position (height)
                 if (scrollInput != 0f)
                 {
                     targetZoom += scrollInput * zoomSpeed;
                     targetZoom = Mathf.Clamp(targetZoom, minZoomDistance, maxZoomDistance);
                 }
 
-                float currentZ = transform.position.z;
-                if (!Mathf.Approximately(currentZ, targetZoom))
+                float currentY = transform.position.y;
+                if (!Mathf.Approximately(currentY, targetZoom))
                 {
                     Vector3 pos = transform.position;
-                    pos.z = Mathf.Lerp(currentZ, targetZoom, Time.deltaTime * zoomSmoothSpeed);
+                    pos.y = Mathf.Lerp(currentY, targetZoom, Time.deltaTime * zoomSmoothSpeed);
                     transform.position = pos;
 
                     if (useBounds)
@@ -189,23 +191,45 @@ namespace Script
         {
             Vector3 pos = transform.position;
             
-            // Calculate visible area based on orthographic size
-            float verticalSize = cam.orthographicSize;
-            float horizontalSize = verticalSize * cam.aspect;
+            if (cam.orthographic)
+            {
+                // Calculate visible area based on orthographic size
+                float verticalSize = cam.orthographicSize;
+                float horizontalSize = verticalSize * cam.aspect;
 
-            // Clamp position so camera doesn't go outside bounds
-            pos.x = Mathf.Clamp(pos.x, minBounds.x + horizontalSize, maxBounds.x - horizontalSize);
-            pos.y = Mathf.Clamp(pos.y, minBounds.y + verticalSize, maxBounds.y - verticalSize);
+                // Clamp position so camera doesn't go outside bounds (X-Y plane)
+                pos.x = Mathf.Clamp(pos.x, minBounds.x + horizontalSize, maxBounds.x - horizontalSize);
+                pos.y = Mathf.Clamp(pos.y, minBounds.y + verticalSize, maxBounds.y - verticalSize);
+            }
+            else
+            {
+                // For perspective top-down camera, calculate visible area based on height
+                float height = Mathf.Abs(pos.y);
+                float verticalSize = height * Mathf.Tan(cam.fieldOfView * 0.5f * Mathf.Deg2Rad);
+                float horizontalSize = verticalSize * cam.aspect;
+
+                // Clamp position so camera doesn't go outside bounds (X-Z plane)
+                pos.x = Mathf.Clamp(pos.x, minBounds.x + horizontalSize, maxBounds.x - horizontalSize);
+                pos.z = Mathf.Clamp(pos.z, minBounds.y + verticalSize, maxBounds.y - verticalSize);
+            }
 
             transform.position = pos;
         }
 
         /// <summary>
-        /// Set camera position directly
+        /// Set camera position directly (X-Z plane for top-down view)
         /// </summary>
         public void SetPosition(Vector2 position)
         {
-            transform.position = new Vector3(position.x, position.y, transform.position.z);
+            if (cam.orthographic)
+            {
+                transform.position = new Vector3(position.x, position.y, transform.position.z);
+            }
+            else
+            {
+                // For perspective top-down view, position is on X-Z plane
+                transform.position = new Vector3(position.x, transform.position.y, position.y);
+            }
             
             if (useBounds)
             {
@@ -225,9 +249,10 @@ namespace Script
             }
             else
             {
+                // For perspective top-down view, zoom is the Y position (height)
                 targetZoom = Mathf.Clamp(zoom, minZoomDistance, maxZoomDistance);
                 Vector3 pos = transform.position;
-                pos.z = targetZoom;
+                pos.y = targetZoom;
                 transform.position = pos;
             }
         }
@@ -245,10 +270,10 @@ namespace Script
             }
             else
             {
+                // For perspective top-down view, Y is height
                 targetZoom = (minZoomDistance + maxZoomDistance) / 2f;
-                transform.position = new Vector3(0, 0, targetZoom);
+                transform.position = new Vector3(0, targetZoom, 0);
             }
         }
     }
 }
-

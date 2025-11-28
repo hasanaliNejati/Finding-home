@@ -165,11 +165,11 @@ public class Card
 
         var newCard = CardFactory.CreateCard(result, 0);
         
-        // Add random offset to spawn position
+        // Add random offset to spawn position (X-Z plane for top-down view)
         Vector3 randomOffset = new Vector3(
             UnityEngine.Random.Range(-1.5f, 1.5f),
-            UnityEngine.Random.Range(-1.5f, 1.5f),
-            0f
+            0f,
+            UnityEngine.Random.Range(-1.5f, 1.5f)
         );
         Vector3 spawnPosition = (Vector3)this.Position + randomOffset;
         

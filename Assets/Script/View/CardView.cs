@@ -8,11 +8,12 @@ using UnityEngine.UI;
 
 namespace Script.View
 {
+    [RequireComponent(typeof(CardViewData))]
     public class CardView : MonoBehaviour,
         IBeginDragHandler, IDragHandler, IEndDragHandler, IPointerClickHandler
     {
-        [SerializeField] private Image spriteRenderer;
-        [SerializeField] private TextMeshProUGUI nameText;
+        // Data component that holds all serialized fields
+        protected CardViewData viewData;
 
         private RectTransform rectTransform;
         private CanvasGroup canvasGroup;
@@ -22,16 +23,13 @@ namespace Script.View
         private Transform startParent;
 
         [SerializeReference] public Card thisCard;
-        [SerializeField] public float speedLerp = 10f;
-        [SerializeField] public Slider progressSlider;
-        [SerializeField] public TextMeshProUGUI valueText; 
-
-
-        public Vector3 GroupOffset = new Vector3(0, -0.1f, -0.1f);
 
 
         private void Awake()
         {
+            // Get the data component - this will always exist due to RequireComponent
+            viewData = GetComponent<CardViewData>();
+            
             rectTransform = GetComponent<RectTransform>();
 
             canvasGroup = GetComponent<CanvasGroup>();
@@ -59,14 +57,19 @@ namespace Script.View
             if (cardDataSo == null)
                 return;
 
-            spriteRenderer.sprite = cardDataSo.sprite;
-            nameText.text = cardDataSo.type;
-            valueText.text = cardDataSo.value.ToString();
+            if (viewData.spriteRenderer != null)
+                viewData.spriteRenderer.sprite = cardDataSo.sprite;
+            
+            if (viewData.nameText != null)
+                viewData.nameText.text = cardDataSo.type;
+            
+            if (viewData.valueText != null)
+                viewData.valueText.text = cardDataSo.value.ToString();
         }
 
         public void OnPointerClick(PointerEventData eventData)
         {
-            Debug.Log("Clicked: " + nameText.text);
+            Debug.Log("Clicked: " + (viewData.nameText != null ? viewData.nameText.text : "Card"));
             OnClick();
         }
         
@@ -103,7 +106,9 @@ namespace Script.View
                     eventData.pressEventCamera,
                     out var worldPoint))
             {
-                rectTransform.position = worldPoint;
+                // Keep Y position fixed, only allow X and Z movement (top-down view)
+                Vector3 currentPosition = rectTransform.position;
+                rectTransform.position = new Vector3(worldPoint.x, currentPosition.y, worldPoint.z);
             }
         }
 
@@ -191,18 +196,22 @@ namespace Script.View
                 var bottomView = GamePlayManager.Instance.GetCardViewByCard(bottom);
                 transform.position = Vector3.Lerp(
                     transform.position,
-                    bottomView.transform.position + GroupOffset,
-                    Time.deltaTime * speedLerp);
+                    bottomView.transform.position + viewData.groupOffset,
+                    Time.deltaTime * viewData.speedLerp);
             }
             
             if(thisCard.TargetProcessTime > 0)
             {
-                progressSlider.gameObject.SetActive(true);
-                progressSlider.value = Mathf.Clamp01(thisCard.ProcessTime / thisCard.TargetProcessTime);
+                if (viewData.progressSlider != null)
+                {
+                    viewData.progressSlider.gameObject.SetActive(true);
+                    viewData.progressSlider.value = Mathf.Clamp01(thisCard.ProcessTime / thisCard.TargetProcessTime);
+                }
             }
             else
             {
-                progressSlider.gameObject.SetActive(false);
+                if (viewData.progressSlider != null)
+                    viewData.progressSlider.gameObject.SetActive(false);
             }
         }
     }

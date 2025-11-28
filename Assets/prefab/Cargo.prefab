@@ -13,14 +13,6 @@ PrefabInstance:
       value: Cargo
       objectReference: {fileID: 0}
     - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-      propertyPath: m_Pivot.x
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-      propertyPath: m_Pivot.y
-      value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
       propertyPath: m_AnchorMax.x
       value: 0.5
       objectReference: {fileID: 0}
@@ -35,14 +27,6 @@ PrefabInstance:
     - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
       propertyPath: m_AnchorMin.y
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-      propertyPath: m_SizeDelta.x
-      value: 60
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-      propertyPath: m_SizeDelta.y
-      value: 90
       objectReference: {fileID: 0}
     - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
       propertyPath: m_LocalPosition.x
@@ -73,14 +57,6 @@ PrefabInstance:
       value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-      propertyPath: m_AnchoredPosition.x
-      value: 64.17
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-      propertyPath: m_AnchoredPosition.y
-      value: 0.04
-      objectReference: {fileID: 0}
-    - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
       propertyPath: m_LocalEulerAnglesHint.x
       value: 0
       objectReference: {fileID: 0}
@@ -90,6 +66,10 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3851969934288922300, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
       propertyPath: m_LocalEulerAnglesHint.z
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 6086571264693078347, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
+      propertyPath: m_SortingLayer
       value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents:
@@ -147,7 +127,7 @@ MonoBehaviour:
   speedLerp: 10
   progressSlider: {fileID: 4354062996906818110}
   valueText: {fileID: 3514511472413366109}
-  GroupOffset: {x: 0, y: -0.1, z: -0.1}
+  GroupOffset: {x: 0, y: 0, z: -0.4}
   randPosAroundRatio: 2
   references:
     version: 2

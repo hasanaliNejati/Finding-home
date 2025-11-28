@@ -71,11 +71,11 @@ namespace Script.View
                 GamePlayManager.Instance.RemoveCard(c.Id);
             }
 
-            // Random offset for the group
+            // Random offset for the group (X-Z plane for top-down view)
             Vector3 randomOffset = new Vector3(
                 Random.Range(-spawnOffsetRange, spawnOffsetRange),
-                Random.Range(-spawnOffsetRange, spawnOffsetRange),
-                0f
+                0f,
+                Random.Range(-spawnOffsetRange, spawnOffsetRange)
             );
             Vector3 spawnPosition = spawnCenter + randomOffset;
 
