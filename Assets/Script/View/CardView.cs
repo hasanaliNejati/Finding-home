@@ -3,8 +3,8 @@ using System.Collections.Generic;
 using NUnit.Framework;
 using TMPro;
 using UnityEngine;
-using UnityEngine.EventSystems;
 using UnityEngine.UI;
+using UnityEngine.EventSystems;
 
 namespace Script.View
 {
@@ -15,12 +15,12 @@ namespace Script.View
         // Data component that holds all serialized fields
         protected CardViewData viewData;
 
-        private RectTransform rectTransform;
-        private CanvasGroup canvasGroup;
-        private Canvas parentCanvas;
-
-        private Vector2 startPosition;
+        private Vector3 startPosition;
         private Transform startParent;
+        private Camera mainCamera;
+        private CanvasGroup canvasGroup;
+        private bool isDragging = false;
+        private Vector3 dragOffset; // Offset between card center and mouse click point
 
         [SerializeReference] public Card thisCard;
 
@@ -30,13 +30,33 @@ namespace Script.View
             // Get the data component - this will always exist due to RequireComponent
             viewData = GetComponent<CardViewData>();
             
-            rectTransform = GetComponent<RectTransform>();
+            mainCamera = Camera.main;
+            if (mainCamera == null)
+            {
+                Debug.LogError("[CardView] Main camera not found!");
+            }
 
-            canvasGroup = GetComponent<CanvasGroup>();
-            if (canvasGroup == null)
-                canvasGroup = gameObject.AddComponent<CanvasGroup>();
+            // Setup canvas group for alpha control
+            if (viewData.worldCanvas != null)
+            {
+                canvasGroup = viewData.worldCanvas.GetComponent<CanvasGroup>();
+                if (canvasGroup == null)
+                {
+                    canvasGroup = viewData.worldCanvas.gameObject.AddComponent<CanvasGroup>();
+                }
 
-            parentCanvas = GetComponentInParent<Canvas>();
+                // Ensure canvas is in World Space mode
+                if (viewData.worldCanvas.renderMode != RenderMode.WorldSpace)
+                {
+                    Debug.LogWarning($"[CardView] Canvas on {gameObject.name} should be in World Space mode!");
+                }
+
+                // Ensure there's a GraphicRaycaster for UI events
+                if (viewData.worldCanvas.GetComponent<GraphicRaycaster>() == null)
+                {
+                    viewData.worldCanvas.gameObject.AddComponent<GraphicRaycaster>();
+                }
+            }
         }
 
         public virtual void Init(Card card, CardDataSo cardDataSo)
@@ -72,7 +92,6 @@ namespace Script.View
             Debug.Log("Clicked: " + (viewData.nameText != null ? viewData.nameText.text : "Card"));
             OnClick();
         }
-        
 
         public virtual void OnClick()
         {
@@ -80,8 +99,13 @@ namespace Script.View
 
         public void OnBeginDrag(PointerEventData eventData)
         {
-            startPosition = rectTransform.position; 
+            isDragging = true;
+            startPosition = transform.position;
             startParent = transform.parent;
+            
+            // Calculate offset between card position and mouse world position
+            Vector3 mouseWorldPos = GetMouseWorldPosition(eventData.position);
+            dragOffset = transform.position - mouseWorldPos;
             
             Card bottomCard = GamePlayManager.Instance.GetCardById(thisCard.BottomCardId);
             if (bottomCard != null)
@@ -89,69 +113,90 @@ namespace Script.View
                 GamePlayManager.Instance.GetCardViewByCard(bottomCard).thisCard.RemoveFromGroup(thisCard);
             }
 
-            transform.SetAsLastSibling();
-            foreach (var tops in TopCardViews())
+            // Increase sorting order for dragged card and its stack
+            UpdateCanvasSortingOrder(10000);
+            
+            // Mark top cards as being dragged too (so they don't update their sorting based on position)
+            var topViews = TopCardViews();
+            foreach (var topView in topViews)
             {
-                tops.transform.SetAsLastSibling();
+                topView.isDragging = true;
+                topView.UpdateCanvasSortingOrder(10000);
             }
-            canvasGroup.blocksRaycasts = false;
-            canvasGroup.alpha = 0.8f;
+
+            // Make card semi-transparent while dragging
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 0.8f;
+                canvasGroup.blocksRaycasts = false; // Don't block raycasts to other cards
+            }
         }
 
         public void OnDrag(PointerEventData eventData)
         {
-            if (RectTransformUtility.ScreenPointToWorldPointInRectangle(
-                    rectTransform,
-                    eventData.position,
-                    eventData.pressEventCamera,
-                    out var worldPoint))
-            {
-                // Keep Y position fixed, only allow X and Z movement (top-down view)
-                Vector3 currentPosition = rectTransform.position;
-                rectTransform.position = new Vector3(worldPoint.x, currentPosition.y, worldPoint.z);
-            }
+            if (mainCamera == null) return;
+
+            // Convert screen point to world point on Y=0 plane
+            Vector3 mouseWorldPos = GetMouseWorldPosition(eventData.position);
+            
+            // Apply the offset to maintain the same grab point
+            Vector3 newPosition = mouseWorldPos + dragOffset;
+            
+            // Keep Y position fixed, only allow X and Z movement (top-down view)
+            newPosition.y = transform.position.y;
+            transform.position = newPosition;
         }
 
         public void OnEndDrag(PointerEventData eventData)
         {
-            canvasGroup.blocksRaycasts = true;
-            canvasGroup.alpha = 1f;
+            isDragging = false;
+            
+            // Reset isDragging for top cards too
+            var topViews = TopCardViews();
+            foreach (var topView in topViews)
+            {
+                topView.isDragging = false;
+            }
+            
+            // Restore alpha and raycasts
+            if (canvasGroup != null)
+            {
+                canvasGroup.alpha = 1f;
+                canvasGroup.blocksRaycasts = true;
+            }
+            
             thisCard.Position = transform.position;
 
-            Vector2 screenPoint = RectTransformUtility.WorldToScreenPoint(
-                eventData.pressEventCamera,
-                rectTransform.position);
-
+            // UI Raycast to find what we dropped on
             var results = new List<RaycastResult>();
-            EventSystem.current.RaycastAll(new PointerEventData(EventSystem.current)
-            {
-                position = screenPoint
-            }, results);
+            EventSystem.current.RaycastAll(eventData, results);
 
-            var topCards = TopCardViews();
-            foreach (var hit in results)
+            foreach (var result in results)
             {
-                // Check for SellZone first
-                var sellZone = hit.gameObject.GetComponent<SellZone>();
+                if (result.gameObject == null) continue;
+
+                // Check for SellZone first (check in parent hierarchy too)
+                var sellZone = result.gameObject.GetComponentInParent<SellZone>();
                 if (sellZone != null)
                 {
                     sellZone.SellCard(this);
                     return; // Card is sold, exit early
                 }
                 
-                // Check for ShopZone
-                var shopZone = hit.gameObject.GetComponent<ShopZone>();
+                // Check for ShopZone (check in parent hierarchy too)
+                var shopZone = result.gameObject.GetComponentInParent<ShopZone>();
                 if (shopZone != null)
                 {
                     if (shopZone.TryPurchase(this))
                     {
                         return; // Purchase processed, exit early
                     }
-                    // If purchase failed (wrong card type), continue checking other targets
+                    // If purchase failed, continue checking other targets
                 }
                 
-                var slot = hit.gameObject.GetComponent<CardView>();
-                if (slot != null && slot != this && !topCards.Contains(slot))
+                // Check for CardView in parent hierarchy (since CardView is on parent of Canvas)
+                var slot = result.gameObject.GetComponentInParent<CardView>();
+                if (slot != null && slot != this && !topViews.Contains(slot))
                 {
                     if(GamePlayManager.Instance.GetCardById(slot.thisCard.TopCardId) != null)
                         continue;
@@ -161,8 +206,14 @@ namespace Script.View
                     {
                         break; // Successfully merged
                     }
-                    // If merge failed, continue checking other slots
                 }
+            }
+
+            // Reset sorting order after drag (for this card and top cards)
+            UpdateCanvasSortingOrderBasedOnPosition();
+            foreach (var topView in topViews)
+            {
+                topView.UpdateCanvasSortingOrderBasedOnPosition();
             }
         }
 
@@ -190,6 +241,7 @@ namespace Script.View
         {
             if (thisCard == null)
                 return;
+
             var bottom = GamePlayManager.Instance.GetCardById(thisCard.BottomCardId);
             if (bottom != null)
             {
@@ -199,7 +251,14 @@ namespace Script.View
                     bottomView.transform.position + viewData.groupOffset,
                     Time.deltaTime * viewData.speedLerp);
             }
+
+            // Update canvas sorting order based on Z position for proper depth ordering
+            if (!isDragging)
+            {
+                UpdateCanvasSortingOrderBasedOnPosition();
+            }
             
+            // Update progress slider
             if(thisCard.TargetProcessTime > 0)
             {
                 if (viewData.progressSlider != null)
@@ -213,6 +272,54 @@ namespace Script.View
                 if (viewData.progressSlider != null)
                     viewData.progressSlider.gameObject.SetActive(false);
             }
+        }
+
+        /// <summary>
+        /// Updates canvas sorting order based on Z position - cards closer to camera (higher Z) appear in front
+        /// </summary>
+        private void UpdateCanvasSortingOrderBasedOnPosition()
+        {
+            if (viewData.worldCanvas == null) return;
+
+            // Convert Z position to sorting order
+            // Multiply by -sortingOrderMultiplier so that higher Z = higher sorting order (closer to camera)
+            int sortingOrder = viewData.baseSortingOrder + Mathf.RoundToInt(-transform.position.z * viewData.sortingOrderMultiplier);
+            
+            //UpdateCanvasSortingOrder(sortingOrder);
+            UpdateCanvasSortingOrder(sortingOrder);
+
+        }
+
+        /// <summary>
+        /// Sets the sorting order for the canvas
+        /// </summary>
+        public void UpdateCanvasSortingOrder(int sortingOrder)
+        {
+            if (viewData.worldCanvas != null)
+            {
+                viewData.worldCanvas.sortingOrder = sortingOrder;
+            }
+        }
+
+        /// <summary>
+        /// Gets the mouse position in world coordinates on the game plane (Y = 0)
+        /// </summary>
+        private Vector3 GetMouseWorldPosition(Vector2 screenPosition)
+        {
+            if (mainCamera == null) return Vector3.zero;
+            
+            // Create a ray from camera through screen position
+            Ray ray = mainCamera.ScreenPointToRay(screenPosition);
+            
+            // Find intersection with Y=0 plane (ground plane for top-down view)
+            Plane groundPlane = new Plane(Vector3.up, Vector3.zero);
+            
+            if (groundPlane.Raycast(ray, out float distance))
+            {
+                return ray.GetPoint(distance);
+            }
+            
+            return transform.position;
         }
     }
 }
