@@ -89,8 +89,20 @@ namespace Script
 
         public void GenerateVisualCard(Card card)
         {
+            GenerateVisualCard(card, null);
+        }
+        
+        public void GenerateVisualCard(Card card, Vector3? startPosition)
+        {
             var cardData = card.Data ?? allCardSo.GetCardDataByType(card.Type);
             var cardView = Instantiate(cardData.cardViewPrefab, cardParentTransform);
+            
+            // اگر موقعیت شروع مشخص شده، کارت را در آن موقعیت قرار بده
+            if (startPosition.HasValue)
+            {
+                cardView.transform.position = startPosition.Value;
+            }
+            
             cardView.Init(card, cardData);
             CardViews.Add(card, cardView);
         }
@@ -132,6 +144,11 @@ namespace Script
         public CardView GetCardViewByCard(Card card)
         {
             return CardViews.GetValueOrDefault(card);
+        }
+        
+        public int GetNextCardId()
+        {
+            return cardIdCounter++;
         }
         
         public Combination GetCombinationByCreateBy(List<string> combination)

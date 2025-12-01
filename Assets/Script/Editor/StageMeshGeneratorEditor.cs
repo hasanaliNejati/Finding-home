@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEditor;
 
@@ -9,11 +10,22 @@ public class StageMeshGeneratorEditor : Editor
     private bool showPointEditor = true;
     private int selectedPointIndex = -1;
     private Vector3 newPointPosition = Vector3.zero;
-
+    private bool isPaintingWatermark = false;
+    private Vector3 lastPaintPosition = Vector3.zero;
+    
     private void OnEnable()
     {
         generator = (StageMeshGenerator)target;
+        // ثبت callback برای به‌روزرسانی مداوم Scene View
+        SceneView.duringSceneGui += OnSceneGUIUpdate;
     }
+    
+    private void OnDisable()
+    {
+        // حذف callback
+        SceneView.duringSceneGui -= OnSceneGUIUpdate;
+    }
+
 
     public override void OnInspectorGUI()
     {
@@ -174,11 +186,130 @@ public class StageMeshGeneratorEditor : Editor
 
         EditorGUILayout.Space();
 
+        // Watermark Brush Editor
+        EditorGUILayout.LabelField("Watermark Brush", EditorStyles.boldLabel);
+        
+        if (generator.enableWatermark)
+        {
+            isPaintingWatermark = EditorGUILayout.Toggle("Paint Mode", isPaintingWatermark);
+            
+            if (isPaintingWatermark)
+            {
+                EditorGUILayout.HelpBox("در Scene View با کلیک چپ و drag کردن، واترمارک را نقاشی کنید.", MessageType.Info);
+                
+                // نمایش لیست texture های واترمارک
+                EditorGUILayout.LabelField("Watermark Textures:", EditorStyles.boldLabel);
+                EditorGUI.indentLevel++;
+                
+                if (generator.watermarkTextures == null || generator.watermarkTextures.Count == 0)
+                {
+                    EditorGUILayout.HelpBox("هیچ texture واترمارکی اضافه نشده است!", MessageType.Warning);
+                }
+                else
+                {
+                    for (int i = 0; i < generator.watermarkTextures.Count; i++)
+                    {
+                        EditorGUILayout.BeginHorizontal();
+                        bool isSelected = generator.selectedWatermarkIndex == i;
+                        if (GUILayout.Button(isSelected ? "●" : "○", GUILayout.Width(20)))
+                        {
+                            generator.selectedWatermarkIndex = i;
+                            EditorUtility.SetDirty(generator);
+                        }
+                        
+                        EditorGUI.BeginChangeCheck();
+                        Texture2D tex = (Texture2D)EditorGUILayout.ObjectField(
+                            $"Texture {i}", 
+                            generator.watermarkTextures[i], 
+                            typeof(Texture2D), 
+                            false
+                        );
+                        if (EditorGUI.EndChangeCheck())
+                        {
+                            Undo.RecordObject(generator, "Change Watermark Texture");
+                            generator.watermarkTextures[i] = tex;
+                            EditorUtility.SetDirty(generator);
+                        }
+                        
+                        if (GUILayout.Button("Remove", GUILayout.Width(60)))
+                        {
+                            Undo.RecordObject(generator, "Remove Watermark Texture");
+                            generator.watermarkTextures.RemoveAt(i);
+                            if (generator.selectedWatermarkIndex >= generator.watermarkTextures.Count)
+                                generator.selectedWatermarkIndex = Mathf.Max(0, generator.watermarkTextures.Count - 1);
+                            EditorUtility.SetDirty(generator);
+                            break;
+                        }
+                        EditorGUILayout.EndHorizontal();
+                    }
+                }
+                
+                EditorGUI.indentLevel--;
+                
+                // دکمه اضافه کردن texture جدید
+                if (GUILayout.Button("Add Watermark Texture"))
+                {
+                    Undo.RecordObject(generator, "Add Watermark Texture");
+                    if (generator.watermarkTextures == null)
+                        generator.watermarkTextures = new List<Texture2D>();
+                    generator.watermarkTextures.Add(null);
+                    EditorUtility.SetDirty(generator);
+                }
+                
+                EditorGUILayout.Space();
+                EditorGUILayout.LabelField("Brush Settings:", EditorStyles.boldLabel);
+                EditorGUI.BeginChangeCheck();
+                generator.brushSize = EditorGUILayout.Slider("Brush Size", generator.brushSize, 0.1f, 10f);
+                generator.brushStrength = EditorGUILayout.Slider("Brush Strength", generator.brushStrength, 0f, 1f);
+                generator.useAlphaFromTexture = EditorGUILayout.Toggle("Use Alpha from Texture", generator.useAlphaFromTexture);
+                if (!generator.useAlphaFromTexture)
+                {
+                    EditorGUILayout.HelpBox("اگر این گزینه غیرفعال باشد، تصویر به صورت کامل (بدون گرادینت) می‌افتد.", MessageType.Info);
+                }
+                if (EditorGUI.EndChangeCheck())
+                {
+                    EditorUtility.SetDirty(generator);
+                }
+                
+                // دکمه پاک کردن واترمارک
+                if (GUILayout.Button("Clear All Watermarks", GUILayout.Height(25)))
+                {
+                    if (EditorUtility.DisplayDialog("Clear Watermarks", "آیا مطمئن هستید که می‌خواهید همه واترمارک‌ها را پاک کنید؟", "بله", "خیر"))
+                    {
+                        Undo.RecordObject(generator, "Clear Watermarks");
+                        if (generator.WatermarkRenderTexture != null)
+                        {
+                            RenderTexture.active = generator.WatermarkRenderTexture;
+                            GL.Clear(true, true, Color.clear);
+                            RenderTexture.active = null;
+                        }
+                        generator.GenerateMesh();
+                        EditorUtility.SetDirty(generator);
+                    }
+                }
+            }
+        }
+        else
+        {
+            EditorGUILayout.HelpBox("واترمارک غیرفعال است. برای استفاده، Enable Watermark را فعال کنید.", MessageType.Info);
+        }
+
+        EditorGUILayout.Space();
+
         if (GUILayout.Button("Generate Mesh", GUILayout.Height(30)))
         {
             Undo.RecordObject(generator, "Generate Mesh");
             generator.GenerateMesh();
             EditorUtility.SetDirty(generator);
+        }
+    }
+
+    private void OnSceneGUIUpdate(SceneView sceneView)
+    {
+        // این متد برای به‌روزرسانی مداوم Scene View استفاده می‌شود
+        if (isPaintingWatermark)
+        {
+            sceneView.Repaint();
         }
     }
 
@@ -243,6 +374,86 @@ public class StageMeshGeneratorEditor : Editor
                 newPointPosition = localPoint; // به‌روزرسانی فیلد موقعیت
                 EditorUtility.SetDirty(generator);
                 e.Use();
+            }
+        }
+
+        // سیستم براش برای نقاشی واترمارک
+        if (isPaintingWatermark && generator.enableWatermark && generator.FillMesh != null)
+        {
+            Event paintEvent = Event.current;
+            int controlID = GUIUtility.GetControlID(FocusType.Passive);
+            
+            // Handle کردن event ها
+            switch (paintEvent.type)
+            {
+                case EventType.MouseDown:
+                case EventType.MouseDrag:
+                case EventType.MouseMove:
+                    if (paintEvent.button == 0)
+                    {
+                        // Raycast برای پیدا کردن نقطه روی mesh
+                        Ray ray = HandleUtility.GUIPointToWorldRay(paintEvent.mousePosition);
+                        RaycastHit hit;
+                        
+                        if (Physics.Raycast(ray, out hit))
+                        {
+                            if (hit.collider.gameObject == generator.gameObject)
+                            {
+                                // نمایش براش
+                                Handles.color = new Color(0f, 1f, 0f, 0.3f);
+                                Handles.DrawSolidDisc(hit.point, hit.normal, generator.brushSize);
+                                Handles.color = Color.green;
+                                Handles.DrawWireDisc(hit.point, hit.normal, generator.brushSize);
+                                
+                                // نقاشی در صورت drag یا کلیک
+                                if (paintEvent.type == EventType.MouseDrag || paintEvent.type == EventType.MouseDown)
+                                {
+                                    Undo.RecordObject(generator, "Paint Watermark");
+                                    
+                                    // نقاشی در نقطه hit
+                                    if (generator.selectedWatermarkIndex >= 0 && 
+                                        generator.selectedWatermarkIndex < generator.watermarkTextures.Count &&
+                                        generator.watermarkTextures[generator.selectedWatermarkIndex] != null)
+                                    {
+                                        generator.PaintWatermark(hit.point, generator.selectedWatermarkIndex);
+                                        generator.SetupMaterials(); // فقط material را به‌روز کن، نه کل mesh
+                                        EditorUtility.SetDirty(generator);
+                                    }
+                                    
+                                    paintEvent.Use();
+                                }
+                                
+                                lastPaintPosition = hit.point;
+                                GUIUtility.hotControl = controlID;
+                            }
+                        }
+                    }
+                    break;
+                    
+                case EventType.MouseUp:
+                    if (paintEvent.button == 0)
+                    {
+                        GUIUtility.hotControl = 0;
+                        paintEvent.Use();
+                    }
+                    break;
+                    
+                case EventType.Repaint:
+                    // نمایش آخرین موقعیت براش
+                    if (lastPaintPosition != Vector3.zero)
+                    {
+                        Handles.color = new Color(0f, 1f, 0f, 0.3f);
+                        Handles.DrawSolidDisc(lastPaintPosition, Vector3.up, generator.brushSize);
+                        Handles.color = Color.green;
+                        Handles.DrawWireDisc(lastPaintPosition, Vector3.up, generator.brushSize);
+                    }
+                    break;
+            }
+            
+            // Force repaint برای دنبال کردن mouse
+            if (paintEvent.type == EventType.MouseMove)
+            {
+                SceneView.RepaintAll();
             }
         }
     }

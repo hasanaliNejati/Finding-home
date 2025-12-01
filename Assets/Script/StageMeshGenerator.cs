@@ -75,6 +75,32 @@ public class StageMeshGenerator : MonoBehaviour
     [Tooltip("تکرار بافت لبه")]
     public float edgeTextureTiling = 1f;
 
+    [Header("Watermark/Decal Settings")]
+    [Tooltip("فعال/غیرفعال کردن واترمارک")]
+    public bool enableWatermark = false;
+
+    [Tooltip("لیست texture های واترمارک (مثلاً عکس چمن، سنگ، و غیره)")]
+    public List<Texture2D> watermarkTextures = new List<Texture2D>();
+
+    [Tooltip("اندازه RenderTexture برای واترمارک (بیشتر = کیفیت بهتر، اما حافظه بیشتر)")]
+    [Range(1024, 8192)]
+    public int watermarkResolution = 2048;
+
+    [Tooltip("اندازه براش (در واحد world)")]
+    [Range(0.1f, 10f)]
+    public float brushSize = 1f;
+
+    [Tooltip("قدرت براش (شدت نقاشی)")]
+    [Range(0f, 1f)]
+    public float brushStrength = 1f;
+
+    [Tooltip("استفاده از alpha texture برای blend (اگر false، تصویر کامل می‌افتد)")]
+    public bool useAlphaFromTexture = true;
+
+    [Tooltip("واترمارک انتخاب شده برای نقاشی (ایندکس از لیست)")]
+    [Range(0, 10)]
+    public int selectedWatermarkIndex = 0;
+
     [Header("Debug")]
     [Tooltip("نمایش نقاط در Scene View")]
     public bool showGizmos = true;
@@ -89,6 +115,14 @@ public class StageMeshGenerator : MonoBehaviour
     private Mesh hillMesh;
     private GameObject edgeObject;
     private GameObject hillObject;
+    private RenderTexture watermarkRenderTexture;
+    private Texture2D watermarkPaintTexture;
+    private Dictionary<Texture2D, Texture2D> readableTextureCache = new Dictionary<Texture2D, Texture2D>(); // Cache برای texture های قابل خواندن
+    private bool isPaintingWatermark = false;
+
+    // Public properties for Editor access
+    public Mesh FillMesh => fillMesh;
+    public RenderTexture WatermarkRenderTexture => watermarkRenderTexture;
 
     private void Awake()
     {
@@ -104,6 +138,21 @@ public class StageMeshGenerator : MonoBehaviour
         meshRenderer = GetComponent<MeshRenderer>();
         if (meshRenderer == null)
             meshRenderer = gameObject.AddComponent<MeshRenderer>();
+
+        // اضافه کردن Collider برای raycast (فقط در Edit Mode)
+        if (!Application.isPlaying)
+        {
+            MeshCollider meshCollider = GetComponent<MeshCollider>();
+            if (meshCollider == null)
+            {
+                meshCollider = gameObject.AddComponent<MeshCollider>();
+            }
+            // به‌روزرسانی collider با mesh فعلی
+            if (fillMesh != null)
+            {
+                meshCollider.sharedMesh = fillMesh;
+            }
+        }
 
         // ساخت آبجکت جداگانه برای لبه‌ها
         if (edgeObject == null)
@@ -135,6 +184,23 @@ public class StageMeshGenerator : MonoBehaviour
         if (hillObject != null)
         {
             hillObject.SetActive(showHill);
+        }
+
+        // ساخت RenderTexture برای واترمارک
+        if (enableWatermark && watermarkRenderTexture == null)
+        {
+            watermarkRenderTexture = new RenderTexture(watermarkResolution, watermarkResolution, 0, RenderTextureFormat.ARGB32);
+            watermarkRenderTexture.name = "WatermarkRT";
+            
+            // پاک کردن RenderTexture با رنگ شفاف
+            RenderTexture.active = watermarkRenderTexture;
+            GL.Clear(true, true, Color.clear);
+            RenderTexture.active = null;
+        }
+        else if (!enableWatermark && watermarkRenderTexture != null)
+        {
+            watermarkRenderTexture.Release();
+            watermarkRenderTexture = null;
         }
     }
 
@@ -180,6 +246,12 @@ public class StageMeshGenerator : MonoBehaviour
             }
         }
 
+        // به‌روزرسانی واترمارک (اگر فعال باشد)
+        if (enableWatermark)
+        {
+            UpdateWatermarkTexture();
+        }
+
         // تنظیم متریال‌ها
         SetupMaterials();
     }
@@ -192,6 +264,7 @@ public class StageMeshGenerator : MonoBehaviour
         List<Vector3> vertices = new List<Vector3>();
         List<int> triangles = new List<int>();
         List<Vector2> uvs = new List<Vector2>();
+        List<Vector2> uv2s = new List<Vector2>(); // UV2 برای واترمارک
         List<Color> colors = new List<Color>();
 
         // تبدیل نقاط به صفحه XZ (سطح زمین)
@@ -204,13 +277,23 @@ public class StageMeshGenerator : MonoBehaviour
         // تولید نقاط با گوشه‌های کرو
         List<Vector2> roundedPoints2D = GenerateRoundedCorners(points2D);
 
-        // محاسبه مرکز برای UV mapping بهتر
+        // محاسبه مرکز و محدوده برای UV mapping
         Vector2 center = Vector2.zero;
+        float minX = float.MaxValue, maxX = float.MinValue;
+        float minZ = float.MaxValue, maxZ = float.MinValue;
         foreach (var point in roundedPoints2D)
         {
             center += point;
+            minX = Mathf.Min(minX, point.x);
+            maxX = Mathf.Max(maxX, point.x);
+            minZ = Mathf.Min(minZ, point.y);
+            maxZ = Mathf.Max(maxZ, point.y);
         }
         center /= roundedPoints2D.Count;
+        
+        // محاسبه اندازه برای نرمال‌سازی UV2
+        float sizeX = maxX - minX;
+        float sizeZ = maxZ - minZ;
 
         // اضافه کردن رأس‌های سطح (فقط یک سطح تخت)
         for (int i = 0; i < roundedPoints2D.Count; i++)
@@ -218,10 +301,15 @@ public class StageMeshGenerator : MonoBehaviour
             vertices.Add(new Vector3(roundedPoints2D[i].x, 0, roundedPoints2D[i].y));
             
             // UV mapping بر اساس موقعیت واقعی با tile
-            // استفاده از موقعیت مستقیم برای tile درست
             float u = roundedPoints2D[i].x * fillTextureTiling;
             float v = roundedPoints2D[i].y * fillTextureTiling;
             uvs.Add(new Vector2(u, v));
+            
+            // UV2 برای واترمارک (0 تا 1 در محدوده mesh)
+            float u2 = sizeX > 0.001f ? (roundedPoints2D[i].x - minX) / sizeX : 0.5f;
+            float v2 = sizeZ > 0.001f ? (roundedPoints2D[i].y - minZ) / sizeZ : 0.5f;
+            uv2s.Add(new Vector2(u2, v2));
+            
             colors.Add(fillColor);
         }
 
@@ -232,11 +320,19 @@ public class StageMeshGenerator : MonoBehaviour
         fillMesh.vertices = vertices.ToArray();
         fillMesh.triangles = triangles.ToArray();
         fillMesh.uv = uvs.ToArray();
+        fillMesh.uv2 = uv2s.ToArray(); // UV2 برای واترمارک
         fillMesh.colors = colors.ToArray();
         fillMesh.RecalculateNormals();
         fillMesh.RecalculateBounds();
 
         meshFilter.mesh = fillMesh;
+        
+        // به‌روزرسانی Collider
+        MeshCollider meshCollider = GetComponent<MeshCollider>();
+        if (meshCollider != null)
+        {
+            meshCollider.sharedMesh = fillMesh;
+        }
     }
 
     private List<int> TriangulatePolygon(List<Vector2> points)
@@ -891,7 +987,273 @@ public class StageMeshGenerator : MonoBehaviour
         }
     }
 
-    private void SetupMaterials()
+    private void UpdateWatermarkTexture()
+    {
+        if (watermarkRenderTexture == null)
+            return;
+
+        // اگر texture paint وجود ندارد، آن را بساز
+        if (watermarkPaintTexture == null)
+        {
+            watermarkPaintTexture = new Texture2D(watermarkResolution, watermarkResolution, TextureFormat.ARGB32, false);
+            watermarkPaintTexture.name = "WatermarkPaint";
+            
+            // پاک کردن با رنگ شفاف
+            Color[] clearColors = new Color[watermarkResolution * watermarkResolution];
+            for (int i = 0; i < clearColors.Length; i++)
+            {
+                clearColors[i] = Color.clear;
+            }
+            watermarkPaintTexture.SetPixels(clearColors);
+            watermarkPaintTexture.Apply();
+        }
+    }
+
+    // متد برای نقاشی واترمارک با براش
+    public void PaintWatermark(Vector3 worldPosition, int textureIndex)
+    {
+        if (!enableWatermark || watermarkRenderTexture == null || fillMesh == null)
+            return;
+
+        if (textureIndex < 0 || textureIndex >= watermarkTextures.Count || watermarkTextures[textureIndex] == null)
+            return;
+
+        // تبدیل world position به local
+        Vector3 localPos = transform.InverseTransformPoint(worldPosition);
+        
+        // پیدا کردن UV2 برای این موقعیت
+        Vector2 uv2 = GetUV2FromPosition(localPos);
+        
+        if (uv2.x < 0 || uv2.x > 1 || uv2.y < 0 || uv2.y > 1)
+            return; // خارج از محدوده mesh
+
+        // نقاشی روی RenderTexture
+        PaintOnRenderTexture(uv2, textureIndex);
+    }
+
+    private Vector2 GetUV2FromPosition(Vector3 localPosition)
+    {
+        if (fillMesh == null || fillMesh.uv2 == null || fillMesh.uv2.Length == 0)
+            return Vector2.zero;
+
+        Vector3[] vertices = fillMesh.vertices;
+        int[] triangles = fillMesh.triangles;
+        Vector2[] uv2s = fillMesh.uv2;
+
+        // پیدا کردن مثلثی که point در آن قرار دارد
+        for (int i = 0; i < triangles.Length; i += 3)
+        {
+            int i0 = triangles[i];
+            int i1 = triangles[i + 1];
+            int i2 = triangles[i + 2];
+
+            Vector3 v0 = vertices[i0];
+            Vector3 v1 = vertices[i1];
+            Vector3 v2 = vertices[i2];
+
+            // محاسبه barycentric coordinates
+            Vector3 v0v1 = v1 - v0;
+            Vector3 v0v2 = v2 - v0;
+            Vector3 v0p = localPosition - v0;
+
+            float dot00 = Vector3.Dot(v0v2, v0v2);
+            float dot01 = Vector3.Dot(v0v2, v0v1);
+            float dot02 = Vector3.Dot(v0v2, v0p);
+            float dot11 = Vector3.Dot(v0v1, v0v1);
+            float dot12 = Vector3.Dot(v0v1, v0p);
+
+            float invDenom = 1 / (dot00 * dot11 - dot01 * dot01);
+            float u = (dot11 * dot02 - dot01 * dot12) * invDenom;
+            float v = (dot00 * dot12 - dot01 * dot02) * invDenom;
+
+            // بررسی اینکه point داخل مثلث است
+            if (u >= 0 && v >= 0 && (u + v) <= 1)
+            {
+                // Interpolate UV2 با barycentric coordinates
+                float w = 1 - u - v;
+                Vector2 uv2 = w * uv2s[i0] + u * uv2s[i1] + v * uv2s[i2];
+                return uv2;
+            }
+        }
+
+        // اگر مثلثی پیدا نشد، از نزدیک‌ترین vertex استفاده کن
+        float minDist = float.MaxValue;
+        int closestIndex = 0;
+        
+        for (int i = 0; i < vertices.Length; i++)
+        {
+            float dist = Vector3.Distance(vertices[i], localPosition);
+            if (dist < minDist)
+            {
+                minDist = dist;
+                closestIndex = i;
+            }
+        }
+
+        return uv2s[closestIndex];
+    }
+
+    // متد برای گرفتن texture قابل خواندن (کپی از texture اصلی)
+    private Texture2D GetReadableTexture(Texture2D sourceTexture)
+    {
+        if (sourceTexture == null)
+            return null;
+
+        // بررسی cache
+        if (readableTextureCache.ContainsKey(sourceTexture) && readableTextureCache[sourceTexture] != null)
+        {
+            return readableTextureCache[sourceTexture];
+        }
+
+        // ساخت RenderTexture موقت
+        RenderTexture tempRT = RenderTexture.GetTemporary(
+            sourceTexture.width,
+            sourceTexture.height,
+            0,
+            RenderTextureFormat.Default,
+            RenderTextureReadWrite.Linear);
+
+        // کپی کردن texture به RenderTexture
+        Graphics.Blit(sourceTexture, tempRT);
+
+        // خواندن از RenderTexture به Texture2D
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture.active = tempRT;
+
+        Texture2D readableTexture = new Texture2D(sourceTexture.width, sourceTexture.height, TextureFormat.RGBA32, false);
+        readableTexture.ReadPixels(new Rect(0, 0, sourceTexture.width, sourceTexture.height), 0, 0);
+        readableTexture.Apply();
+
+        RenderTexture.active = previous;
+        RenderTexture.ReleaseTemporary(tempRT);
+
+        // ذخیره در cache
+        readableTextureCache[sourceTexture] = readableTexture;
+
+        return readableTexture;
+    }
+
+    private void PaintOnRenderTexture(Vector2 uv, int textureIndex)
+    {
+        if (watermarkRenderTexture == null || watermarkTextures[textureIndex] == null)
+            return;
+
+        // تبدیل UV به pixel coordinates
+        float x = uv.x * watermarkResolution;
+        float y = uv.y * watermarkResolution;
+        
+        // محاسبه اندازه براش در pixel
+        float brushSizeInPixels = brushSize * (watermarkResolution / 10f); // فرض: 10 واحد world = کل resolution
+        float halfSize = brushSizeInPixels * 0.5f;
+        
+        // محاسبه مستطیل برای کشیدن تصویر کامل
+        float left = x - halfSize;
+        float bottom = y - halfSize;
+        float right = x + halfSize;
+        float top = y + halfSize;
+        
+        // محدود کردن به محدوده RenderTexture
+        left = Mathf.Max(0, left);
+        bottom = Mathf.Max(0, bottom);
+        right = Mathf.Min(watermarkResolution, right);
+        top = Mathf.Min(watermarkResolution, top);
+        
+        int width = Mathf.RoundToInt(right - left);
+        int height = Mathf.RoundToInt(top - bottom);
+        
+        if (width <= 0 || height <= 0)
+            return;
+        
+        // گرفتن texture اصلی
+        Texture2D sourceTexture = watermarkTextures[textureIndex];
+        
+        // ساخت RenderTexture موقت برای brush stamp با رزولوشن اصلی texture
+        // استفاده از رزولوشن اصلی برای حفظ کیفیت کامل
+        RenderTexture brushStamp = RenderTexture.GetTemporary(
+            sourceTexture.width, 
+            sourceTexture.height, 
+            0, 
+            RenderTextureFormat.ARGB32, 
+            RenderTextureReadWrite.Linear);
+        
+        // کشیدن texture اصلی به brush stamp با کیفیت کامل
+        Graphics.Blit(sourceTexture, brushStamp);
+        
+        // ساخت RenderTexture موقت برای نتیجه blend
+        RenderTexture tempResult = RenderTexture.GetTemporary(
+            watermarkResolution, 
+            watermarkResolution, 
+            0, 
+            RenderTextureFormat.ARGB32, 
+            RenderTextureReadWrite.Linear);
+        
+        // کپی کردن RenderTexture فعلی
+        Graphics.Blit(watermarkRenderTexture, tempResult);
+        
+        // ساخت RenderTexture موقت برای brush در اندازه دقیق با رزولوشن بالا
+        // استفاده از رزولوشن اصلی texture برای حفظ کیفیت
+        RenderTexture scaledBrush = RenderTexture.GetTemporary(
+            Mathf.Max(width, sourceTexture.width), 
+            Mathf.Max(height, sourceTexture.height), 
+            0, 
+            RenderTextureFormat.ARGB32, 
+            RenderTextureReadWrite.Linear);
+        
+        // Scale کردن brush stamp به اندازه دقیق با کیفیت بالا
+        Graphics.Blit(brushStamp, scaledBrush);
+        
+        // ساخت Material برای blend با alpha
+        // استفاده از shader که alpha blending را پشتیبانی می‌کند
+        Material blendMaterial = new Material(Shader.Find("Sprites/Default"));
+        if (blendMaterial.shader.name != "Sprites/Default")
+        {
+            blendMaterial = new Material(Shader.Find("UI/Default"));
+        }
+        blendMaterial.SetTexture("_MainTex", scaledBrush);
+        
+        // تنظیم blend strength
+        if (useAlphaFromTexture)
+        {
+            blendMaterial.SetFloat("_Strength", brushStrength);
+        }
+        else
+        {
+            // برای تصویر کامل، alpha را force می‌کنیم
+            blendMaterial.SetFloat("_Strength", brushStrength);
+            // استفاده از shader که alpha را ignore می‌کند
+        }
+        
+        // استفاده از Graphics.Blit برای blend با viewport
+        RenderTexture previous = RenderTexture.active;
+        RenderTexture.active = tempResult;
+        
+        GL.PushMatrix();
+        GL.LoadPixelMatrix(0, watermarkResolution, watermarkResolution, 0);
+        
+        // تنظیم viewport برای موقعیت brush (Unity از پایین به بالا است)
+        int viewportY = watermarkResolution - Mathf.RoundToInt(top);
+        GL.Viewport(new Rect(Mathf.RoundToInt(left), viewportY, width, height));
+        
+        // Blend کردن با Material
+        Graphics.Blit(scaledBrush, tempResult, blendMaterial);
+        
+        GL.PopMatrix();
+        RenderTexture.active = previous;
+        
+        // پاک کردن منابع
+        RenderTexture.ReleaseTemporary(scaledBrush);
+        DestroyImmediate(blendMaterial);
+        
+        // کپی کردن نتیجه به RenderTexture اصلی
+        Graphics.Blit(tempResult, watermarkRenderTexture);
+        
+        // پاک کردن منابع موقت
+        RenderTexture.ReleaseTemporary(brushStamp);
+        RenderTexture.ReleaseTemporary(tempResult);
+        DestroyImmediate(blendMaterial);
+    }
+
+    public void SetupMaterials()
     {
         // تنظیم متریال سطح
         if (fillMaterial != null)
@@ -914,6 +1276,77 @@ public class StageMeshGenerator : MonoBehaviour
                 tiling.y = fillTextureTiling;
                 mpb.SetVector("_MainTex_ST", tiling);
             }
+            
+            // اضافه کردن واترمارک texture (اگر فعال باشد)
+            if (enableWatermark && watermarkRenderTexture != null)
+            {
+                // تلاش برای استفاده از property های مختلف
+                bool watermarkSet = false;
+                
+                if (fillMaterial.HasProperty("_WatermarkTex"))
+                {
+                    mpb.SetTexture("_WatermarkTex", watermarkRenderTexture);
+                    watermarkSet = true;
+                }
+                else if (fillMaterial.HasProperty("_WatermarkTex"))
+                {
+                    // استفاده از shader custom
+                    mpb.SetTexture("_WatermarkTex", watermarkRenderTexture);
+                    if (fillMaterial.HasProperty("_UseWatermark"))
+                    {
+                        mpb.SetFloat("_UseWatermark", 1f);
+                    }
+                    if (fillMaterial.HasProperty("_WatermarkStrength"))
+                    {
+                        mpb.SetFloat("_WatermarkStrength", 1f);
+                    }
+                    watermarkSet = true;
+                }
+                else if (fillMaterial.HasProperty("_DetailAlbedoMap"))
+                {
+                    // استفاده از _DetailAlbedoMap با UV2
+                    mpb.SetTexture("_DetailAlbedoMap", watermarkRenderTexture);
+                    // فعال کردن detail map
+                    if (fillMaterial.HasProperty("_DetailAlbedoMapScale"))
+                    {
+                        mpb.SetFloat("_DetailAlbedoMapScale", 1f);
+                    }
+                    watermarkSet = true;
+                }
+                else if (fillMaterial.HasProperty("_EmissionMap"))
+                {
+                    // استفاده از Emission به عنوان overlay (موقت)
+                    mpb.SetTexture("_EmissionMap", watermarkRenderTexture);
+                    if (fillMaterial.HasProperty("_EmissionColor"))
+                    {
+                        mpb.SetColor("_EmissionColor", Color.white);
+                    }
+                    watermarkSet = true;
+                }
+                
+                // اگر هیچ property پیدا نشد، از shader custom استفاده کن
+                if (!watermarkSet)
+                {
+                    // ساخت یک material جدید با shader custom
+                    Shader watermarkShader = Shader.Find("Custom/StageWatermarkBlend");
+                    if (watermarkShader != null)
+                    {
+                        Material newMaterial = new Material(watermarkShader);
+                        newMaterial.SetTexture("_BaseMap", fillMaterial.GetTexture("_BaseMap"));
+                        newMaterial.SetColor("_BaseColor", fillColor);
+                        newMaterial.SetTexture("_WatermarkTex", watermarkRenderTexture);
+                        newMaterial.SetFloat("_UseWatermark", 1f);
+                        newMaterial.SetFloat("_WatermarkStrength", 1f);
+                        meshRenderer.sharedMaterial = newMaterial;
+                        watermarkSet = true;
+                    }
+                    else
+                    {
+                        Debug.LogWarning("Custom shader 'Custom/StageWatermarkBlend' not found. Please create it or use a shader that supports _WatermarkTex property.");
+                    }
+                }
+            }
+            
             meshRenderer.SetPropertyBlock(mpb);
         }
         else
@@ -929,6 +1362,25 @@ public class StageMeshGenerator : MonoBehaviour
                 tiling.y = fillTextureTiling;
                 defaultFill.SetVector("_MainTex_ST", tiling);
             }
+            
+            // اضافه کردن واترمارک texture
+            if (enableWatermark && watermarkRenderTexture != null)
+            {
+                if (defaultFill.HasProperty("_DetailAlbedoMap"))
+                {
+                    defaultFill.SetTexture("_DetailAlbedoMap", watermarkRenderTexture);
+                    if (defaultFill.HasProperty("_DetailAlbedoMapScale"))
+                    {
+                        defaultFill.SetFloat("_DetailAlbedoMapScale", 1f);
+                    }
+                }
+                else if (defaultFill.HasProperty("_EmissionMap"))
+                {
+                    defaultFill.SetTexture("_EmissionMap", watermarkRenderTexture);
+                    defaultFill.SetColor("_EmissionColor", Color.white);
+                }
+            }
+            
             meshRenderer.sharedMaterial = defaultFill;
         }
 
@@ -992,6 +1444,12 @@ public class StageMeshGenerator : MonoBehaviour
             Gizmos.color = gizmoColor * 0.3f;
             Gizmos.DrawSphere(center, 0.05f);
         }
+
+        // نمایش براش واترمارک (در صورت نقاشی)
+        if (enableWatermark && isPaintingWatermark)
+        {
+            // این در Editor نمایش داده می‌شود
+        }
     }
 
     private void OnValidate()
@@ -1001,6 +1459,33 @@ public class StageMeshGenerator : MonoBehaviour
         {
             GenerateMesh();
         }
+    }
+
+    private void OnDestroy()
+    {
+        // Release RenderTexture
+        if (watermarkRenderTexture != null)
+        {
+            watermarkRenderTexture.Release();
+            watermarkRenderTexture = null;
+        }
+        
+        // Destroy paint texture
+        if (watermarkPaintTexture != null)
+        {
+            DestroyImmediate(watermarkPaintTexture);
+            watermarkPaintTexture = null;
+        }
+        
+        // Destroy cached readable textures
+        foreach (var cachedTexture in readableTextureCache.Values)
+        {
+            if (cachedTexture != null)
+            {
+                DestroyImmediate(cachedTexture);
+            }
+        }
+        readableTextureCache.Clear();
     }
 
     // متدهای کمکی برای ویرایش نقاط

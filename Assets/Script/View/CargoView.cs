@@ -15,7 +15,18 @@ namespace Script.View
                 Random.Range(-1f, 1f)
             ).normalized * randPosAroundRatio;
             RandPosAround += this.transform.position;
-            GamePlayManager.Instance.AddCard( ((CargoCard)thisCard).PopCard(), RandPosAround);
+            
+            // موقعیت شروع = موقعیت Cargo (برای انیمیشن)
+            Vector3 startPosition = this.transform.position;
+            
+            var newCard = ((CargoCard)thisCard).PopCard();
+            newCard.Position = RandPosAround; // موقعیت نهایی
+            newCard.Id = GamePlayManager.Instance.GetNextCardId();
+            GamePlayManager.Instance.Cards.Add(newCard.Id, newCard);
+            
+            // کارت را روی Cargo بساز تا با انیمیشن به موقعیت نهایی برود
+            GamePlayManager.Instance.GenerateVisualCard(newCard, startPosition);
+            GamePlayManager.Instance.RefreshDeletedCards();
         }
     }
 }
