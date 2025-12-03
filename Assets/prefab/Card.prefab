@@ -345,25 +345,10 @@ MonoBehaviour:
   nameText: {fileID: 325521134146394884}
   valueText: {fileID: 5915857262853499982}
   progressSlider: {fileID: 6824053479975829805}
-  speedLerp: 10
-  groupOffset: {x: 0, y: 0, z: -0.2}
+  groupOffset: {x: 0, y: 0, z: -0.25}
   baseSortingOrder: 0
   sortingOrderMultiplier: 100
   visualCard: {fileID: 4313674359977094050}
-  moveDuration: 0.3
-  jumpHeight: 1
-  jumpDuration: 0.6
-  bounceCount: 3
-  heightReduction: 0.5
-  durationReduction: 0.6
-  vibrato: 2
-  elasticity: 1
-  dragHeight: 0
-  dragHeightDuration: 0.1
-  dragHeightDownDuration: 0.1
-  maxDragRotationAngle: 25
-  rotationZeroThreshold: 0.1
-  rotationMaxDistance: 3
 --- !u!1 &3805318894745489117
 GameObject:
   m_ObjectHideFlags: 0

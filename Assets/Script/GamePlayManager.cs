@@ -18,6 +18,7 @@ namespace Script
 
         [SerializeField] private AllCardSo allCardSo;
         [SerializeField] private Transform cardParentTransform;
+        [SerializeField] private InitialCardsSo initialCardsSo;
 
         private void Awake()
         {
@@ -29,6 +30,33 @@ namespace Script
             else
             {
                 Destroy(gameObject);
+            }
+        }
+
+        private void Start()
+        {
+            // Spawn initial cards if configured
+            if (initialCardsSo != null && initialCardsSo.initialCards != null)
+            {
+                SpawnInitialCards();
+            }
+        }
+
+        /// <summary>
+        /// Spawn all initial cards defined in InitialCardsSo
+        /// </summary>
+        private void SpawnInitialCards()
+        {
+            foreach (var entry in initialCardsSo.initialCards)
+            {
+                if (entry.cardData == null)
+                {
+                    Debug.LogWarning("Initial card entry has null cardData, skipping.");
+                    continue;
+                }
+
+                var card = CardFactory.CreateCard(entry.cardData, cardIdCounter++);
+                AddCard(card, entry.position);
             }
         }
 
@@ -156,9 +184,20 @@ namespace Script
             Debug.Log("GetCombinationByCreateBy called");
             return allCardSo.GetCombinationByCreateBy(combination);
         }
+        
+        public Combination GetCombinationByCreateBy(List<string> combination, List<Card> cards)
+        {
+            return allCardSo.GetCombinationByCreateBy(combination, cards);
+        }
+        
         public CardDataSo GetCardDataByCreateBy(List<string> combination)
         {
             return allCardSo.GetCardDataByCreateBy(combination);
+        }
+        
+        public CardDataSo GetCardDataByCreateBy(List<string> combination, List<Card> cards)
+        {
+            return allCardSo.GetCardDataByCreateBy(combination, cards);
         }
 
 

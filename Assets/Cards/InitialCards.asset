@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 7361beaba5a541d49aaab3311b973501, type: 3}
+  m_Name: InitialCards
+  m_EditorClassIdentifier: Assembly-CSharp::Script.InitialCardsSo
+  initialCards:
+  - cardData: {fileID: 11400000, guid: ed1b5582fac1a8840b7fd2fb2c75fd68, type: 2}
+    position: {x: 0, y: 0, z: 0}
+  - cardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
+    position: {x: 1, y: 0, z: 0}
+  - cardData: {fileID: 11400000, guid: 3bf85842c851917478e610d690cf7379, type: 2}
+    position: {x: 1, y: 0, z: 1}
+  - cardData: {fileID: 11400000, guid: 3bf85842c851917478e610d690cf7379, type: 2}
+    position: {x: 0, y: 0, z: 1}

@@ -95,7 +95,9 @@ public class Card
             return;
         }
 
-        var combination = GamePlayManager.Instance.GetCombinationByCreateBy(GetAllTopTypesInGroup());
+        var types = GetAllTopTypesInGroup();
+        var cards = GetAllTopCardsInGroup();
+        var combination = GamePlayManager.Instance.GetCombinationByCreateBy(types, cards);
 
         if (combination != null)
         {
@@ -153,10 +155,12 @@ public class Card
 
     public virtual void ProcessComplete()
     {
-        var result = GamePlayManager.Instance.GetCardDataByCreateBy(GetAllTopTypesInGroup());
+        var types = GetAllTopTypesInGroup();
+        var cards = GetAllTopCardsInGroup();
+        var result = GamePlayManager.Instance.GetCardDataByCreateBy(types, cards);
         if (result == null)
         {
-            Debug.LogWarning($"Combination result not found for stack: {string.Join(",", GetAllTopTypesInGroup())}");
+            Debug.LogWarning($"Combination result not found for stack: {string.Join(",", types)}");
             TargetProcessTime = 0;
             ProcessTime = 0;
             CheckCombination();
@@ -175,7 +179,17 @@ public class Card
         
         GamePlayManager.Instance.AddCard(newCard, spawnPosition);
 
-        foreach (var item in GetAllTopCardsInGroup())
+        // Check for energy cards and spawn pollution
+        var allCards = GetAllTopCardsInGroup();
+        foreach (var item in allCards)
+        {
+            if (item is EnergyCard energyCard)
+            {
+                energyCard.OnEnergyUsed();
+            }
+        }
+
+        foreach (var item in allCards)
         {
             item.CombinedComplete();
         }

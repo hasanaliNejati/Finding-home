@@ -10,21 +10,27 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Wood
+  m_Name: Smeltery
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Wood
-  sprite: {fileID: -5622901713081898559, guid: 6400fca644fc00549b2c413fbbc97fe6, type: 3}
+  type: Smeltery
+  sprite: {fileID: 5181654206020448988, guid: 70db7a4314e7e9b469b24739d29942e7, type: 3}
   category: 0
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy:
   - duration: 2
     Parts:
-    - CardData: {fileID: 11400000, guid: 4e6925288608c0143b9e5b3abd3c7a6b, type: 2}
-      Count: 1
+    - CardData: {fileID: 11400000, guid: 63c3e0eb77632df49923efec856ccf2f, type: 2}
+      Count: 3
+      acceptAnyFromCategory: 0
+    - CardData: {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
+      Count: 2
       acceptAnyFromCategory: 0
     - CardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
       Count: 1
-      acceptAnyFromCategory: 1
+      acceptAnyFromCategory: 0
+    - CardData: {fileID: 11400000, guid: 32042f19eba1ec24d98cbd3e748c45dc, type: 2}
+      Count: 1
+      acceptAnyFromCategory: 0
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

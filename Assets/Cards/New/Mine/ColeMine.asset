@@ -1,0 +1,26 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a28308f7b43393c418b7a39a37309513, type: 3}
+  m_Name: ColeMine
+  m_EditorClassIdentifier: Assembly-CSharp::Script.MineDataSo
+  type: ColeMine
+  sprite: {fileID: 6894999169920593895, guid: 01e09848cab2b57438be2d41a03bd9ab, type: 3}
+  category: 0
+  cardViewPrefab: {fileID: 8874928283597542385, guid: a083cd7ac33ffae45b8fc9b7e0249667, type: 3}
+  value: 0
+  CreateBy: []
+  maxCombinationUses: 1
+  upgradeTarget: {fileID: 0}
+  miningInterval: 5
+  mineCardRatioItems:
+  - cardData: {fileID: 11400000, guid: 3b10a04d70bd70c458073bda1b32e965, type: 2}
+    ratio: 1

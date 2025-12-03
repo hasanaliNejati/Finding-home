@@ -5,5 +5,7 @@
     {
         public CardDataSo CardData;
         public int Count;
+        
+        public bool acceptAnyFromCategory = false;
     }
 }

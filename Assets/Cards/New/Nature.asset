@@ -10,9 +10,9 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 995fda2eda4a442e88a5589ec53868fe, type: 3}
-  m_Name: Cargo
+  m_Name: Nature
   m_EditorClassIdentifier: Assembly-CSharp::Script.CargoDataSo
-  type: cargo
+  type: Nature
   sprite: {fileID: 21300000, guid: 5b476a0ef6d55c742b8f01d282cb502a, type: 3}
   category: 0
   cardViewPrefab: {fileID: 5885591681658482614, guid: c03f9cb1d5f17a7459be9d6ea792d5a8, type: 3}
@@ -22,24 +22,14 @@ MonoBehaviour:
     Parts: []
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}
-  minimumCargoCount: 10
-  maximumCargoCount: 10
+  minimumCargoCount: 2
+  maximumCargoCount: 4
   cargoCardRatioItems:
   - cardData: {fileID: 11400000, guid: ba1c4c5426d616c4db45fe9105d831b2, type: 2}
     ratio: 10
   - cardData: {fileID: 11400000, guid: fb80374b42e6fea4daf092f7c0dde76d, type: 2}
     ratio: 10
   - cardData: {fileID: 11400000, guid: 9338470c3c7cdbb40b00422c135e896c, type: 2}
-    ratio: 30
-  - cardData: {fileID: 11400000, guid: fa003bfe1334a6e4ca47c84a73f45de2, type: 2}
-    ratio: 10
-  - cardData: {fileID: 11400000, guid: 2e18ec944b435f841b2f69e551ef1345, type: 2}
     ratio: 10
   - cardData: {fileID: 11400000, guid: 9bf6ba5fdf385704ebff131d4128e11c, type: 2}
-    ratio: 10
-  - cardData: {fileID: 11400000, guid: 446be8f45e808a44682ea597b0f6916a, type: 2}
-    ratio: 10
-  - cardData: {fileID: 11400000, guid: a44bd6fee5e204540b1ced3cf2ca95fc, type: 2}
-    ratio: 10
-  - cardData: {fileID: 11400000, guid: b04746e25bfaedc4ba08bd6b97909586, type: 2}
     ratio: 10

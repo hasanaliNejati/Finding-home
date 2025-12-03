@@ -10,21 +10,21 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Wood
+  m_Name: FishCan
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Wood
-  sprite: {fileID: -5622901713081898559, guid: 6400fca644fc00549b2c413fbbc97fe6, type: 3}
-  category: 0
+  type: FishCan
+  sprite: {fileID: 2960402581040015946, guid: 073cf33ee2d87ef4894b7637aea8f125, type: 3}
+  category: 1
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy:
-  - duration: 2
+  - duration: 5
     Parts:
-    - CardData: {fileID: 11400000, guid: 4e6925288608c0143b9e5b3abd3c7a6b, type: 2}
+    - CardData: {fileID: 11400000, guid: 63c3e0eb77632df49923efec856ccf2f, type: 2}
       Count: 1
       acceptAnyFromCategory: 0
-    - CardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
+    - CardData: {fileID: 11400000, guid: fb80374b42e6fea4daf092f7c0dde76d, type: 2}
       Count: 1
-      acceptAnyFromCategory: 1
+      acceptAnyFromCategory: 0
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

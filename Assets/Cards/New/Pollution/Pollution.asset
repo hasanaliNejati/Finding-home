@@ -10,18 +10,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: f7a6bd447c92457aa993315f3284b080, type: 3}
-  m_Name: Hammer
+  m_Name: Pollution
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
-  type: Hammer
-  sprite: {fileID: -796155573255488767, guid: 62065ffdd8841fa458f3d0fabe8522b8, type: 3}
+  type: Pollution
+  sprite: {fileID: 4130640169021434097, guid: 17205339644ced1428ef972ee400ca6d, type: 3}
+  category: 7
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
-  value: 1
-  CreateBy:
-  - duration: 2
-    Parts:
-    - CardData: {fileID: 11400000, guid: 63c3e0eb77632df49923efec856ccf2f, type: 2}
-      Count: 1
-    - CardData: {fileID: 11400000, guid: 0ed642961242f8748beff43957948488, type: 2}
-      Count: 1
-  maxCombinationUses: 2
+  value: 0
+  CreateBy: []
+  maxCombinationUses: 1
   upgradeTarget: {fileID: 0}

@@ -22,8 +22,8 @@ MonoBehaviour:
   upgradeTarget: {fileID: 0}
   maxHealth: 5
   maxFood: 5
-  foodDecreaseRate: 0.1
-  healthDecreaseRate: 0.1
+  foodDecreaseRate: 0.01
+  healthDecreaseRate: 0.01
   foodPerMeal: 1
   eatingDuration: 1
   deathDropCard: {fileID: 11400000, guid: 62c5ab9dc64390744b81e8ea83cb122c, type: 2}

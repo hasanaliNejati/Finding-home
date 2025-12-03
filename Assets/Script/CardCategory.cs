@@ -8,6 +8,7 @@ namespace Script
         CraftedMaterial,    // ساخته شده (Hammer, Ship, SolarPanel, ...)
         HarvestingMaterial, // منبع برداشت (Tree, Rock, FishHole, ...)
         Creature,           // موجودات زنده (Pini)
+        Energy,             // انرژی (CleanEnergy, OilEnergy, ...)
         Pollution,          // آلودگی
         Special             // خاص (Cargo, Coin, ...)
     }

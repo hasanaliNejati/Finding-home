@@ -26,14 +26,25 @@ namespace Script
         
         public Combination GetCombinationByCreateBy(List<string> combination)
         {
-            return FindCombinationMatch(combination)?.Item1;
-        }
-        public CardDataSo GetCardDataByCreateBy(List<string> combination)
-        {
-            return FindCombinationMatch(combination)?.Item2;
+            return FindCombinationMatch(combination, null)?.Item1;
         }
         
-        (Combination, CardDataSo)? FindCombinationMatch(List<string> combination)
+        public Combination GetCombinationByCreateBy(List<string> combination, List<Card> cards)
+        {
+            return FindCombinationMatch(combination, cards)?.Item1;
+        }
+        
+        public CardDataSo GetCardDataByCreateBy(List<string> combination)
+        {
+            return FindCombinationMatch(combination, null)?.Item2;
+        }
+        
+        public CardDataSo GetCardDataByCreateBy(List<string> combination, List<Card> cards)
+        {
+            return FindCombinationMatch(combination, cards)?.Item2;
+        }
+        
+        (Combination, CardDataSo)? FindCombinationMatch(List<string> combination, List<Card> cards)
         {
             var sortedCombination = combination.OrderBy(x => x).ToList();
 
@@ -41,19 +52,7 @@ namespace Script
             {
                 foreach (var createBy in cardData.CreateBy)
                 {
-                    List<string> createByTypes = new List<string>();
-
-                    foreach (var part in createBy.Parts)
-                    {
-                        for (int i = 0; i < part.Count; i++)
-                        {
-                            createByTypes.Add(part.CardData.type);
-                        }
-                    }
-
-                    var sortedTypes = createByTypes.OrderBy(x => x).ToList();
-
-                    if (sortedTypes.SequenceEqual(sortedCombination))
+                    if (MatchesCombination(createBy, sortedCombination, cards))
                     {
                         return (createBy, cardData);
                     }
@@ -62,6 +61,89 @@ namespace Script
 
             Debug.Log("Null");
             return null;
+        }
+        
+        bool MatchesCombination(Combination combination, List<string> sortedCardTypes, List<Card> cards)
+        {
+            // Build the required types/categories from combination parts
+            List<string> requiredItems = new List<string>();
+            Dictionary<string, CardCategory> categoryRequirements = new Dictionary<string, CardCategory>();
+            
+            foreach (var part in combination.Parts)
+            {
+                for (int i = 0; i < part.Count; i++)
+                {
+                    if (part.acceptAnyFromCategory && part.CardData != null)
+                    {
+                        // Use category identifier for category-based matching
+                        string categoryKey = $"CATEGORY:{part.CardData.category}";
+                        requiredItems.Add(categoryKey);
+                        if (!categoryRequirements.ContainsKey(categoryKey))
+                        {
+                            categoryRequirements[categoryKey] = part.CardData.category;
+                        }
+                    }
+                    else
+                    {
+                        // Use exact type for exact matching
+                        requiredItems.Add(part.CardData.type);
+                    }
+                }
+            }
+            
+            var sortedRequired = requiredItems.OrderBy(x => x).ToList();
+            
+            // If no category requirements, do simple type matching
+            if (categoryRequirements.Count == 0)
+            {
+                return sortedRequired.SequenceEqual(sortedCardTypes);
+            }
+            
+            // We have category requirements, need to match with cards
+            if (cards == null || cards.Count != sortedCardTypes.Count)
+            {
+                // Can't do category matching without card objects
+                return false;
+            }
+            
+            // Build actual items from cards (types or category identifiers)
+            List<string> actualItems = new List<string>();
+            foreach (var card in cards)
+            {
+                // First check if exact type is in required items (for exact matches)
+                if (sortedRequired.Contains(card.Type))
+                {
+                    actualItems.Add(card.Type);
+                }
+                // Otherwise, check if card's category matches any category requirement
+                else if (card.Data != null)
+                {
+                    bool matchedCategory = false;
+                    foreach (var kvp in categoryRequirements)
+                    {
+                        if (card.Data.category == kvp.Value)
+                        {
+                            actualItems.Add(kvp.Key);
+                            matchedCategory = true;
+                            break;
+                        }
+                    }
+                    
+                    if (!matchedCategory)
+                    {
+                        // Use exact type as fallback
+                        actualItems.Add(card.Type);
+                    }
+                }
+                else
+                {
+                    // Fallback to exact type
+                    actualItems.Add(card.Type);
+                }
+            }
+            
+            var sortedActual = actualItems.OrderBy(x => x).ToList();
+            return sortedRequired.SequenceEqual(sortedActual);
         }
 
     }
