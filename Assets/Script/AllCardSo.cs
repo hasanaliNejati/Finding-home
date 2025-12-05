@@ -36,17 +36,48 @@ namespace Script
         
         public CardDataSo GetCardDataByCreateBy(List<string> combination)
         {
-            return FindCombinationMatch(combination, null)?.Item2;
+            return GetCardDataByCreateByWithWeight(combination, null);
         }
         
         public CardDataSo GetCardDataByCreateBy(List<string> combination, List<Card> cards)
         {
-            return FindCombinationMatch(combination, cards)?.Item2;
+            return GetCardDataByCreateByWithWeight(combination, cards);
+        }
+        
+        CardDataSo GetCardDataByCreateByWithWeight(List<string> combination, List<Card> cards)
+        {
+            var matches = FindAllCombinationMatches(combination, cards);
+            if (matches == null || matches.Count == 0)
+            {
+                Debug.Log("Null");
+                return null;
+            }
+            
+            if (matches.Count == 1)
+            {
+                return matches[0].Item2;
+            }
+            
+            // Use weighted random selection
+            return SelectWeightedRandom(matches);
         }
         
         (Combination, CardDataSo)? FindCombinationMatch(List<string> combination, List<Card> cards)
         {
+            var matches = FindAllCombinationMatches(combination, cards);
+            if (matches == null || matches.Count == 0)
+            {
+                return null;
+            }
+            
+            // For backward compatibility, return first match
+            return matches[0];
+        }
+        
+        List<(Combination, CardDataSo)> FindAllCombinationMatches(List<string> combination, List<Card> cards)
+        {
             var sortedCombination = combination.OrderBy(x => x).ToList();
+            var matches = new List<(Combination, CardDataSo)>();
 
             foreach (var cardData in allCardData)
             {
@@ -54,13 +85,48 @@ namespace Script
                 {
                     if (MatchesCombination(createBy, sortedCombination, cards))
                     {
-                        return (createBy, cardData);
+                        matches.Add((createBy, cardData));
                     }
                 }
             }
 
-            Debug.Log("Null");
-            return null;
+            return matches;
+        }
+        
+        CardDataSo SelectWeightedRandom(List<(Combination, CardDataSo)> matches)
+        {
+            // Calculate total weight
+            int totalWeight = 0;
+            foreach (var match in matches)
+            {
+                int weight = match.Item2.weight > 0 ? match.Item2.weight : 1;
+                totalWeight += weight;
+            }
+            
+            if (totalWeight <= 0)
+            {
+                // Fallback to equal probability if all weights are invalid
+                return matches[Random.Range(0, matches.Count)].Item2;
+            }
+            
+            // Generate random number between 0 and totalWeight
+            int randomValue = Random.Range(0, totalWeight);
+            
+            // Select based on weighted probability
+            int currentWeight = 0;
+            foreach (var match in matches)
+            {
+                int weight = match.Item2.weight > 0 ? match.Item2.weight : 1;
+                currentWeight += weight;
+                
+                if (randomValue < currentWeight)
+                {
+                    return match.Item2;
+                }
+            }
+            
+            // Fallback (should not reach here)
+            return matches[matches.Count - 1].Item2;
         }
         
         bool MatchesCombination(Combination combination, List<string> sortedCardTypes, List<Card> cards)

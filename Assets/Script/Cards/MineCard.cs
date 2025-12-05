@@ -157,10 +157,7 @@ namespace Script
             // Use mine position as start position for animation (card will animate from mine to spawn position)
             Vector3 startPosition = (Vector3)this.Position;
             
-            newCard.Id = GamePlayManager.Instance.GetNextCardId();
-            GamePlayManager.Instance.Cards.Add(newCard.Id, newCard);
-            GamePlayManager.Instance.GenerateVisualCard(newCard, startPosition);
-            GamePlayManager.Instance.RefreshDeletedCards();
+            GamePlayManager.Instance.AddCard(newCard,spawnPosition,startPosition);
             
             Debug.Log($"[MineCard] Successfully spawned {newCard.Type} from mine {Type} at position {spawnPosition}");
         }

@@ -12,14 +12,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a28308f7b43393c418b7a39a37309513, type: 3}
   m_Name: StonMine
   m_EditorClassIdentifier: Assembly-CSharp::Script.MineDataSo
-  type: ColeMine
-  sprite: {fileID: 6894999169920593895, guid: 01e09848cab2b57438be2d41a03bd9ab, type: 3}
+  type: StoneMine
   category: 0
+  sprite: {fileID: 6894999169920593895, guid: 01e09848cab2b57438be2d41a03bd9ab, type: 3}
   cardViewPrefab: {fileID: 8874928283597542385, guid: a083cd7ac33ffae45b8fc9b7e0249667, type: 3}
   value: 0
   CreateBy: []
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}
+  removalCard: {fileID: 0}
+  weight: 1
   miningInterval: 15
   mineCardRatioItems:
   - cardData: {fileID: 11400000, guid: 8487c4b458dbb8b438700af59692abaa, type: 2}

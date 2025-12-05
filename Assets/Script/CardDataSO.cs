@@ -23,5 +23,8 @@ namespace Script
 
         [Tooltip("Optional card to spawn when this card is removed/destroyed after a combination.")]
         public CardDataSo removalCard;
+
+        [Tooltip("Weight for random selection when multiple cards can be created from the same combination. Higher weight = higher chance.")]
+        public int weight = 1;
     }
 }
