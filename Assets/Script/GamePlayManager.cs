@@ -63,11 +63,11 @@ namespace Script
                 }
 
                 var card = CardFactory.CreateCard(entry.cardData, cardIdCounter++);
-                AddCard(card, entry.position);
+                AddCard(card, entry.position,entry.position);
             }
         }
 
-        public void AddCargoCard()
+        public void AddCargoCard(Vector3 spawnPos)
         {
             allCardSo.allCardData.ForEach(cardDataSo =>
             {
@@ -75,20 +75,20 @@ namespace Script
                 {
                     var cargoCard = CardFactory.CreateCard(cargoDataSo, cardIdCounter++);
                     Cards.Add(cargoCard.Id, cargoCard);
-                    GenerateVisualCard(cargoCard);
+                    GenerateVisualCard(cargoCard, spawnPos);
                 }
             });
             RefreshDeletedCards();
         }
 
-        public void AddCard(string type)
+        public void AddCard(string type,Vector3 spownPos)
         {
             var cardData = allCardSo.GetCardDataByType(type);
             if (cardData != null)
             {
                 Card card = CardFactory.CreateCard(cardData, cardIdCounter++);
                 Cards.Add(card.Id, card);
-                GenerateVisualCard(card);
+                GenerateVisualCard(card,spownPos);
                 RefreshDeletedCards();
 
             }
@@ -98,12 +98,12 @@ namespace Script
             }
         }
 
-        public void AddCard(Card card, Vector3 pos)
+        public void AddCard(Card card, Vector3 pos,Vector3 spawnFromPos)
         {
             card.Position = pos;
             card.Id = cardIdCounter++;
             Cards.Add(card.Id, card);
-            GenerateVisualCard(card);
+            GenerateVisualCard(card,spawnFromPos);
             RefreshDeletedCards();
 
         }
@@ -122,10 +122,7 @@ namespace Script
             }
         }
 
-        public void GenerateVisualCard(Card card)
-        {
-            GenerateVisualCard(card, null);
-        }
+
         
         public void GenerateVisualCard(Card card, Vector3? startPosition)
         {
@@ -320,6 +317,16 @@ namespace Script
         public void ShowGameOverPanel()
         {
             OnGameOver?.Invoke();
+        }
+
+        public static Vector3 RandomVectorOffset()
+        {
+            Vector3 randomOffset = new Vector3(
+                UnityEngine.Random.Range(-1.5f, 1.5f),
+                0f,
+                UnityEngine.Random.Range(-1.5f, 1.5f)
+            );
+            return randomOffset;
         }
     }
 }

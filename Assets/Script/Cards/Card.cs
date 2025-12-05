@@ -156,14 +156,10 @@ public class Card
         var newCard = CardFactory.CreateCard(result, 0);
         
         // Add random offset to spawn position (X-Z plane for top-down view)
-        Vector3 randomOffset = new Vector3(
-            UnityEngine.Random.Range(-1.5f, 1.5f),
-            0f,
-            UnityEngine.Random.Range(-1.5f, 1.5f)
-        );
-        Vector3 spawnPosition = (Vector3)this.Position + randomOffset;
+
+        Vector3 spawnPosition = (Vector3)this.Position + GamePlayManager.RandomVectorOffset();
         
-        GamePlayManager.Instance.AddCard(newCard, spawnPosition);
+        GamePlayManager.Instance.AddCard(newCard, spawnPosition,Position);
 
         // Check for energy cards and spawn pollution
         var allCards = GetAllTopCardsInGroup();
@@ -188,6 +184,15 @@ public class Card
 
         if (ShouldDestroyAfterCombination())
         {
+            // Spawn removal card if configured
+            if (Data != null && Data.removalCard != null)
+            {
+                var removalCard = CardFactory.CreateCard(Data.removalCard, 0);
+
+                Vector3 spawnPosition = (Vector3)this.Position + GamePlayManager.RandomVectorOffset();
+                GamePlayManager.Instance.AddCard(removalCard, spawnPosition,this.Position);
+            }
+
             // Only detach from neighbors if this card is being destroyed
             // This keeps surviving cards connected for the next process
             DetachFromNeighbors();

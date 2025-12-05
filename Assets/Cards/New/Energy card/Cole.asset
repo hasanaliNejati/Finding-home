@@ -13,10 +13,11 @@ MonoBehaviour:
   m_Name: Cole
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
   type: Cole
-  sprite: {fileID: -6470460504253458178, guid: a8f9294862d18f04284060f4e17165e5, type: 3}
   category: 6
+  sprite: {fileID: 21300000, guid: 614014c28af496649b418d6e8c58c846, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy: []
   maxCombinationUses: 1
-  upgradeTarget: {fileID: 11400000, guid: a44bd6fee5e204540b1ced3cf2ca95fc, type: 2}
+  upgradeTarget: {fileID: 0}
+  removalCard: {fileID: 11400000, guid: a44bd6fee5e204540b1ced3cf2ca95fc, type: 2}

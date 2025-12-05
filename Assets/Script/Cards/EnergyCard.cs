@@ -22,10 +22,6 @@ public class EnergyCard : Card
             return;
         }
 
-        // Spawn pollution card at the energy card's position
-        var pollutionCard = CardFactory.CreateCard(energyData.pollutionCard, 0);
-        Vector3 spawnPos = (Vector3)this.Position;
-        GamePlayManager.Instance.AddCard(pollutionCard, spawnPos);
     }
 }
 

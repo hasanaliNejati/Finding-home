@@ -106,11 +106,11 @@ namespace Script.View
                 Vector3 randomOffset = new Vector3(
                     Random.Range(-spawnOffsetRange, spawnOffsetRange),
                     0f,
-                    Random.Range(-spawnOffsetRange, spawnOffsetRange)
+                    Random.Range(-spawnOffsetRange, -spawnOffsetRange/2)
                 );
                 
                 Vector3 spawnPosition = transform.position + randomOffset;
-                GamePlayManager.Instance.AddCard(newCard, spawnPosition);
+                GamePlayManager.Instance.AddCard(newCard, spawnPosition,transform.position);
                 
                 Debug.Log($"[ShopZone] Purchased {rewardCardType.type}!");
                 

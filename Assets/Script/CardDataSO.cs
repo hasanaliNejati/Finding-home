@@ -20,5 +20,8 @@ namespace Script
 
         [Tooltip("Optional upgrade data that replaces this card after it participates in a combination.")]
         public CardDataSo upgradeTarget;
+
+        [Tooltip("Optional card to spawn when this card is removed/destroyed after a combination.")]
+        public CardDataSo removalCard;
     }
 }

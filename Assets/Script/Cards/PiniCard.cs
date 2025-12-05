@@ -60,8 +60,8 @@ public class PiniCard : Card
         if (DeathDropCard != null)
         {
             var dropCard = CardFactory.CreateCard(DeathDropCard, 0);
-            Vector3 spawnPos = (Vector3)this.Position;
-            GamePlayManager.Instance.AddCard(dropCard, spawnPos);
+            Vector3 spawnPos = (Vector3)this.Position + GamePlayManager.RandomVectorOffset();
+            GamePlayManager.Instance.AddCard(dropCard, spawnPos,Position);
         }
 
         // Remove Pini
