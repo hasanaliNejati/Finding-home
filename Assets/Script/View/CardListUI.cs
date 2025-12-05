@@ -3,6 +3,7 @@ using System.Text;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
+using Script;
 
 namespace Script.View
 {
@@ -24,6 +25,40 @@ namespace Script.View
         
         private List<CardDataSo> allCards = new List<CardDataSo>();
         private CardDataSo selectedCard = null;
+
+        private void OnEnable()
+        {
+            // Subscribe to card obtained event
+            SubscribeToCardObtained();
+        }
+
+        private void OnDisable()
+        {
+            // Unsubscribe from card obtained event
+            UnsubscribeFromCardObtained();
+        }
+
+        private void OnDestroy()
+        {
+            // Ensure we unsubscribe when destroyed
+            UnsubscribeFromCardObtained();
+        }
+
+        private void SubscribeToCardObtained()
+        {
+            if (GamePlayManager.Instance != null)
+            {
+                GamePlayManager.Instance.OnCardObtained += OnCardObtained;
+            }
+        }
+
+        private void UnsubscribeFromCardObtained()
+        {
+            if (GamePlayManager.Instance != null)
+            {
+                GamePlayManager.Instance.OnCardObtained -= OnCardObtained;
+            }
+        }
 
         private void Start()
         {
@@ -56,6 +91,9 @@ namespace Script.View
                 closeButton.onClick.AddListener(ClosePanel);
             }
 
+            // Subscribe to event in Start as well (in case OnEnable was called before Instance was set)
+            SubscribeToCardObtained();
+
             LoadAllCards();
             PopulateCardList();
         }
@@ -73,7 +111,7 @@ namespace Script.View
         }
 
         /// <summary>
-        /// Populate the UI list with all cards
+        /// Populate the UI list with cards that can be shown (ingredients obtained)
         /// </summary>
         private void PopulateCardList()
         {
@@ -83,14 +121,19 @@ namespace Script.View
                 Destroy(child.gameObject);
             }
 
-            // Create UI items for each card
+            // Create UI items only for cards that can be shown
             foreach (var cardData in allCards)
             {
                 if (cardData == null)
                     continue;
 
-                CardListItem listItem = Instantiate(cardListItemPrefab, cardListContainer);
-                SetupCardListItem(listItem, cardData);
+                // Only show cards whose ingredients have been obtained
+                if (GamePlayManager.Instance != null && 
+                    GamePlayManager.Instance.CanShowCardInList(cardData))
+                {
+                    CardListItem listItem = Instantiate(cardListItemPrefab, cardListContainer);
+                    SetupCardListItem(listItem, cardData);
+                }
             }
         }
 
@@ -232,9 +275,28 @@ namespace Script.View
         public void OpenPanel()
         {
             gameObject.SetActive(true);
+            // Refresh the list when opening to show newly available cards
+            PopulateCardList();
             if (selectedCard != null)
             {
                 UpdateRequirementsText(selectedCard);
+            }
+        }
+
+        /// <summary>
+        /// Called when a new card is obtained - refreshes the list
+        /// </summary>
+        private void OnCardObtained(string cardType)
+        {
+            // Only refresh if the panel is active
+            if (gameObject.activeSelf)
+            {
+                PopulateCardList();
+                // Update requirements text if a card is selected
+                if (selectedCard != null)
+                {
+                    UpdateRequirementsText(selectedCard);
+                }
             }
         }
     }

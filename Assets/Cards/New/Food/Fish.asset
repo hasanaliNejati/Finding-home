@@ -13,8 +13,8 @@ MonoBehaviour:
   m_Name: Fish
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
   type: Fish
-  sprite: {fileID: -6470460504253458178, guid: a8f9294862d18f04284060f4e17165e5, type: 3}
   category: 1
+  sprite: {fileID: 21300000, guid: 86bdc0cca8bff9941a1c9239388961b3, type: 3}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy:
@@ -22,7 +22,10 @@ MonoBehaviour:
     Parts:
     - CardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
       Count: 1
+      acceptAnyFromCategory: 0
     - CardData: {fileID: 11400000, guid: 9bf6ba5fdf385704ebff131d4128e11c, type: 2}
       Count: 1
+      acceptAnyFromCategory: 0
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}
+  removalCard: {fileID: 0}

@@ -13,9 +13,11 @@ MonoBehaviour:
   m_Name: FishHole
   m_EditorClassIdentifier: Assembly-CSharp::Script.CardDataSo
   type: FishHole
-  sprite: {fileID: -7371509505491802261, guid: 776a9f469d3209f4eabc5d1beb99b2b8, type: 3}
+  category: 0
+  sprite: {fileID: 10913, guid: 0000000000000000f000000000000000, type: 0}
   cardViewPrefab: {fileID: 1870472716961835234, guid: d2bb9ce9b0ef13f468638b1ebe37f693, type: 3}
   value: 1
   CreateBy: []
   maxCombinationUses: 2
   upgradeTarget: {fileID: 0}
+  removalCard: {fileID: 0}

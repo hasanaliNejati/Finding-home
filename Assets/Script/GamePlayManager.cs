@@ -25,7 +25,11 @@ namespace Script
         [SerializeField] private int foodPerCreature = 2;
         [SerializeField] private int maxPollutionCount = 15;
 
+        [Header("Card Discovery")]
+        [SerializeReference] private HashSet<string> obtainedCardTypes = new HashSet<string>();
+
         public event Action OnGameOver;
+        public event Action<string> OnCardObtained;
 
         private void Awake()
         {
@@ -75,6 +79,7 @@ namespace Script
                 {
                     var cargoCard = CardFactory.CreateCard(cargoDataSo, cardIdCounter++);
                     Cards.Add(cargoCard.Id, cargoCard);
+                    MarkCardAsObtained(cargoCard);
                     GenerateVisualCard(cargoCard, spawnPos);
                 }
             });
@@ -88,6 +93,7 @@ namespace Script
             {
                 Card card = CardFactory.CreateCard(cardData, cardIdCounter++);
                 Cards.Add(card.Id, card);
+                MarkCardAsObtained(card);
                 GenerateVisualCard(card,spownPos);
                 RefreshDeletedCards();
 
@@ -103,6 +109,7 @@ namespace Script
             card.Position = pos;
             card.Id = cardIdCounter++;
             Cards.Add(card.Id, card);
+            MarkCardAsObtained(card);
             GenerateVisualCard(card,spawnFromPos);
             RefreshDeletedCards();
 
@@ -327,6 +334,80 @@ namespace Script
                 UnityEngine.Random.Range(-1.5f, 1.5f)
             );
             return randomOffset;
+        }
+
+        /// <summary>
+        /// Mark a card type as obtained (even if it's later removed)
+        /// </summary>
+        private void MarkCardAsObtained(Card card)
+        {
+            Debug.Log("MarkCardAsObtained called");
+            if (card != null && !string.IsNullOrEmpty(card.Type))
+            {
+                
+                // Only trigger event if this is a new card type
+                bool isNewCard = !obtainedCardTypes.Contains(card.Type);
+                if (isNewCard)
+                    Debug.Log(card.Type + " is obtained");
+                obtainedCardTypes.Add(card.Type);
+                
+                if (isNewCard)
+                {
+                    OnCardObtained?.Invoke(card.Type);
+                }
+            }
+        }
+
+        /// <summary>
+        /// Check if a card type has ever been obtained
+        /// </summary>
+        public bool HasObtainedCardType(string cardType)
+        {
+            return obtainedCardTypes.Contains(cardType);
+        }
+
+        /// <summary>
+        /// Check if a card can be shown in the card list (all ingredients have been obtained)
+        /// </summary>
+        public bool CanShowCardInList(CardDataSo cardData)
+        {
+            if (cardData == null)
+                return false;
+
+            // If card has no crafting requirements, don't show it
+            if (cardData.CreateBy == null || cardData.CreateBy.Count == 0)
+                return false;
+
+            // Check if at least one combination has all ingredients obtained
+            foreach (var combination in cardData.CreateBy)
+            {
+                if (combination == null || combination.Parts == null || combination.Parts.Count == 0)
+                {
+                    // No requirements, don't show
+                    continue;
+                }
+
+                bool allIngredientsObtained = true;
+                foreach (var part in combination.Parts)
+                {
+                    if (part.CardData == null)
+                        continue;
+
+                    // Check if this ingredient has been obtained
+                    if (!HasObtainedCardType(part.CardData.type))
+                    {
+                        allIngredientsObtained = false;
+                        break;
+                    }
+                }
+
+                // If all ingredients for this combination are obtained, can show the card
+                if (allIngredientsObtained)
+                    return true;
+            }
+
+            // No combination has all ingredients obtained
+            return false;
         }
     }
 }

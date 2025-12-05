@@ -22,11 +22,8 @@ namespace Script.View
             var newCard = ((CargoCard)thisCard).PopCard();
             newCard.Position = RandPosAround; // موقعیت نهایی
             newCard.Id = GamePlayManager.Instance.GetNextCardId();
-            GamePlayManager.Instance.Cards.Add(newCard.Id, newCard);
+            GamePlayManager.Instance.AddCard(newCard, newCard.Position, this.transform.position);
             
-            // کارت را روی Cargo بساز تا با انیمیشن به موقعیت نهایی برود
-            GamePlayManager.Instance.GenerateVisualCard(newCard, startPosition);
-            GamePlayManager.Instance.RefreshDeletedCards();
         }
     }
 }
