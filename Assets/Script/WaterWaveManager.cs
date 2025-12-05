@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using Script;
 using UnityEngine;
 
 public class WaterWaveManager : MonoBehaviour
@@ -77,19 +78,22 @@ public class WaterWaveManager : MonoBehaviour
                 phaseOffset * i // هر آبجکت یک phase offset متفاوت داره
             );
             
-            // گرفتن مقدار اولیه sorting order از prefab انتخاب شده
-            int initialSortingOrder = 0;
-            SpriteRenderer prefabRenderer = selectedPrefab.GetComponent<SpriteRenderer>();
-            if (prefabRenderer != null)
-            {
-                initialSortingOrder = prefabRenderer.sortingOrder;
-            }
-            
-            // تنظیم Sorting Order برای SpriteRenderer (از مقدار اولیه کم می‌کنیم)
+            // تنظیم Sorting Order اولیه برای SpriteRenderer بر اساس موقعیت Z
+            // (در runtime در WaterWaveObject.Update() به‌روزرسانی می‌شود)
             SpriteRenderer spriteRenderer = waterObj.GetComponent<SpriteRenderer>();
             if (spriteRenderer != null)
             {
-                spriteRenderer.sortingOrder = initialSortingOrder - i; // از مقدار اولیه کم می‌کنیم
+                // baseSortingOrder را 0 قرار می‌دهیم تا همه از یک base شروع کنند
+                // این باعث می‌شود که sorting order فقط بر اساس Z position باشد
+                int baseSortingOrder = 0;
+                
+                // تنظیم sorting order اولیه بر اساس موقعیت Z
+                // (این مقدار در WaterWaveObject.Update() به‌روزرسانی می‌شود)
+                spriteRenderer.sortingOrder = SortingOrderUtility.GetSortingOrderFromZ(
+                    position.z,
+                    baseSortingOrder,
+                    SortingOrderUtility.DefaultSortingOrderMultiplier
+                );
             }
             
             waterObjects.Add(waveObject);

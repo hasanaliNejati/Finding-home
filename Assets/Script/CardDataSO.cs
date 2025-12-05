@@ -9,8 +9,8 @@ namespace Script
     public class CardDataSo : ScriptableObject
     {
         public string type;
-        public Sprite sprite;
         public CardCategory category = CardCategory.None;
+        public Sprite sprite;
         public CardView cardViewPrefab;
         public int value;
         public List<Combination> CreateBy = new List<Combination>();

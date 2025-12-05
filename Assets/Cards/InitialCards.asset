@@ -13,10 +13,12 @@ MonoBehaviour:
   m_Name: InitialCards
   m_EditorClassIdentifier: Assembly-CSharp::Script.InitialCardsSo
   initialCards:
-  - cardData: {fileID: 11400000, guid: ed1b5582fac1a8840b7fd2fb2c75fd68, type: 2}
+  - cardData: {fileID: 11400000, guid: 35a1c60d48252f04dae06dbbfc4eaa34, type: 2}
     position: {x: 0, y: 0, z: 0}
   - cardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
     position: {x: 1, y: 0, z: 0}
+  - cardData: {fileID: 11400000, guid: cf51f82a15ebd7b4e85cad2a73f12845, type: 2}
+    position: {x: 1, y: 0, z: -1}
   - cardData: {fileID: 11400000, guid: 3bf85842c851917478e610d690cf7379, type: 2}
     position: {x: 1, y: 0, z: 1}
   - cardData: {fileID: 11400000, guid: 3bf85842c851917478e610d690cf7379, type: 2}

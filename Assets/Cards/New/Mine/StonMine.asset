@@ -20,7 +20,7 @@ MonoBehaviour:
   CreateBy: []
   maxCombinationUses: 1
   upgradeTarget: {fileID: 0}
-  miningInterval: 10
+  miningInterval: 15
   mineCardRatioItems:
   - cardData: {fileID: 11400000, guid: 8487c4b458dbb8b438700af59692abaa, type: 2}
     ratio: 1

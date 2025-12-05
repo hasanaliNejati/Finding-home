@@ -349,6 +349,10 @@ MonoBehaviour:
   baseSortingOrder: 0
   sortingOrderMultiplier: 100
   visualCard: {fileID: 4313674359977094050}
+  cardRadius: 0.3
+  separationForce: 5
+  damping: 0.9
+  maxSpeed: 2
 --- !u!1 &3805318894745489117
 GameObject:
   m_ObjectHideFlags: 0
@@ -619,8 +623,8 @@ RectTransform:
   m_Children:
   - {fileID: 4761960643682993376}
   - {fileID: 2426755094127356617}
-  - {fileID: 2872036338406395764}
   - {fileID: 9071305783036412303}
+  - {fileID: 2872036338406395764}
   - {fileID: 735192158925874880}
   - {fileID: 460971126338467177}
   m_Father: {fileID: 7436611802694959582}

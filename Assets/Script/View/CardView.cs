@@ -21,6 +21,9 @@ namespace Script.View
         private Camera mainCamera;
         private CanvasGroup canvasGroup;
         private bool isDragging = false;
+        
+        // Separation force velocity
+        private Vector3 separationVelocity = Vector3.zero;
 
         [SerializeReference] public Card thisCard;
 
@@ -245,6 +248,11 @@ namespace Script.View
                     // Try to add to group - may fail if Pini restrictions apply
                     if (slot.thisCard.AddToGroup(thisCard))
                     {
+                        // Reset separation velocity for both cards when merging
+                        // This prevents sudden movement when adding a card to a group
+                        this.separationVelocity = Vector3.zero;
+                        slot.separationVelocity = Vector3.zero;
+                        
                         break; // Successfully merged
                     }
                 }
@@ -319,10 +327,23 @@ namespace Script.View
                 {
                     transform.position = bottomView.transform.position + viewData.groupOffset;
                     isFollowingBottom = true;
+                    // Reset velocity when following bottom card (top cards don't have their own velocity)
+                    separationVelocity = Vector3.zero;
                 }
             }
             else
             {
+                // Apply separation force for:
+                // 1. Independent cards (not stacked, not dragging)
+                // 2. Bottom cards of a stack (they move the whole group)
+                bool isBottomCard = (bottom == null && thisCard.TopCardId != 0);
+                bool isIndependentCard = (bottom == null && thisCard.TopCardId == 0);
+                
+                if (!isDragging && (isBottomCard || isIndependentCard))
+                {
+                    ApplySeparationForce();
+                }
+                
                 // VisualCard همیشه در ارتفاع 0 است (بدون انیمیشن)
                 if (viewData.visualCard != null && !isDragging)
                 {
@@ -361,13 +382,15 @@ namespace Script.View
         {
             if (viewData.worldCanvas == null) return;
 
-            // Convert Z position to sorting order
-            // Multiply by -sortingOrderMultiplier so that higher Z = higher sorting order (closer to camera)
-            int sortingOrder = viewData.baseSortingOrder + Mathf.RoundToInt(-transform.position.z * viewData.sortingOrderMultiplier);
+            // Use shared utility function to calculate sorting order based on Z position
+            // استفاده از baseSortingOrder = 0 و multiplier مشترک برای یکسان بودن با دریا
+            int sortingOrder = SortingOrderUtility.GetSortingOrderFromZ(
+                transform.position.z,
+                0, // baseSortingOrder را 0 قرار می‌دهیم تا با دریا یکسان باشد
+                SortingOrderUtility.DefaultSortingOrderMultiplier // استفاده از multiplier مشترک
+            );
             
-            //UpdateCanvasSortingOrder(sortingOrder);
             UpdateCanvasSortingOrder(sortingOrder);
-
         }
 
         /// <summary>
@@ -400,6 +423,198 @@ namespace Script.View
             }
             
             return transform.position;
+        }
+        
+        /// <summary>
+        /// Applies separation force to push this card away from nearby cards
+        /// Only applies force when cards are overlapping, stops movement when no overlap exists
+        /// </summary>
+        private void ApplySeparationForce()
+        {
+            if (GamePlayManager.Instance == null || viewData == null)
+                return;
+            
+            Vector3 separationForceVector = Vector3.zero;
+            Vector3 currentPos = transform.position;
+            float cardRadius = viewData.cardRadius;
+            float separationForce = viewData.separationForce;
+            bool hasOverlap = false;
+            
+            // Check all other cards for overlap
+            foreach (var cardEntry in GamePlayManager.Instance.Cards)
+            {
+                Card otherCard = cardEntry.Value;
+                
+                // Skip self
+                if (otherCard.Id == thisCard.Id)
+                    continue;
+                
+                // Skip cards that are in the same stack (top/bottom of this card)
+                if (otherCard.Id == thisCard.BottomCardId || otherCard.Id == thisCard.TopCardId)
+                    continue;
+                
+                // Skip cards that are being dragged
+                var otherView = GamePlayManager.Instance.GetCardViewByCard(otherCard);
+                if (otherView != null && otherView.isDragging)
+                    continue;
+                
+                // For stacked cards, check against the bottom card of the other stack
+                Card otherBottomCard = otherCard;
+                CardView otherBottomView = otherView;
+                
+                // If other card is a top card, get its bottom card for position check
+                if (otherCard.BottomCardId != 0)
+                {
+                    var tempBottom = GamePlayManager.Instance.GetCardById(otherCard.BottomCardId);
+                    if (tempBottom != null)
+                    {
+                        otherBottomCard = tempBottom;
+                        otherBottomView = GamePlayManager.Instance.GetCardViewByCard(tempBottom);
+                    }
+                }
+                
+                // Skip if checking against same bottom card (same stack)
+                if (otherBottomCard.Id == thisCard.Id)
+                    continue;
+                
+                // If this card is a top card, check against other card's bottom position
+                if (thisCard.BottomCardId != 0)
+                {
+                    var thisBottom = GamePlayManager.Instance.GetCardById(thisCard.BottomCardId);
+                    if (thisBottom != null && thisBottom.Id == otherBottomCard.Id)
+                        continue; // Same stack
+                }
+                
+                // Use bottom card's position for stacked cards
+                Vector3 otherPos = (Vector3)otherBottomCard.Position;
+                // Keep Y position same (only work on X-Z plane)
+                otherPos.y = currentPos.y;
+                
+                // Calculate distance on X-Z plane (ignore Y)
+                Vector3 diff = currentPos - otherPos;
+                diff.y = 0; // Only work on X-Z plane
+                float distance = diff.magnitude;
+                
+                // Calculate combined radius
+                // Use bottom card's radius for stacked cards
+                float otherRadius = otherBottomView != null && otherBottomView.viewData != null 
+                    ? otherBottomView.viewData.cardRadius 
+                    : cardRadius;
+                float minDistance = cardRadius + otherRadius;
+                
+                // If cards are overlapping or too close
+                if (distance < minDistance && distance > 0.001f)
+                {
+                    hasOverlap = true;
+                    
+                    // Calculate separation direction (normalized)
+                    Vector3 direction = diff.normalized;
+                    
+                    // Calculate force strength (stronger when closer)
+                    float overlapAmount = minDistance - distance;
+                    float forceStrength = (overlapAmount / minDistance) * separationForce;
+                    
+                    // Add to separation force vector
+                    separationForceVector += direction * forceStrength;
+                }
+            }
+            
+            // Only apply force if there's overlap
+            if (hasOverlap)
+            {
+                // Apply force to velocity
+                separationVelocity += separationForceVector * Time.deltaTime;
+                
+                // Clamp velocity to max speed
+                if (separationVelocity.magnitude > viewData.maxSpeed)
+                {
+                    separationVelocity = separationVelocity.normalized * viewData.maxSpeed;
+                }
+            }
+            else
+            {
+                // No overlap - apply damping to slow down and stop
+                separationVelocity *= viewData.damping;
+            }
+            
+            // Apply velocity to position
+            if (separationVelocity.magnitude > 0.001f)
+            {
+                Vector3 newPosition = currentPos + separationVelocity * Time.deltaTime;
+                // Keep Y position constant
+                newPosition.y = currentPos.y;
+                transform.position = newPosition;
+                
+                // Update card position data
+                thisCard.Position = newPosition;
+            }
+            else
+            {
+                // Reset velocity when very small or no overlap
+                separationVelocity = Vector3.zero;
+            }
+        }
+        
+        /// <summary>
+        /// Draws gizmos to visualize card radius for debugging
+        /// </summary>
+        private void OnDrawGizmosSelected()
+        {
+            if (viewData == null)
+                return;
+            
+            // Draw card radius as a circle on X-Z plane
+            Gizmos.color = Color.yellow;
+            Vector3 center = transform.position;
+            float radius = viewData.cardRadius;
+            
+            // Draw circle on X-Z plane (top-down view)
+            int segments = 32;
+            Vector3 prevPoint = center + new Vector3(radius, 0, 0);
+            for (int i = 1; i <= segments; i++)
+            {
+                float angle = (float)i / segments * 360f * Mathf.Deg2Rad;
+                Vector3 newPoint = center + new Vector3(
+                    Mathf.Cos(angle) * radius,
+                    0,
+                    Mathf.Sin(angle) * radius
+                );
+                Gizmos.DrawLine(prevPoint, newPoint);
+                prevPoint = newPoint;
+            }
+            
+            // Draw center point
+            Gizmos.color = Color.red;
+            Gizmos.DrawSphere(center, 0.1f);
+        }
+        
+        /// <summary>
+        /// Draws gizmos for all cards (not just selected)
+        /// </summary>
+        private void OnDrawGizmos()
+        {
+            if (viewData == null)
+                return;
+            
+            // Draw a subtle circle for all cards
+            Gizmos.color = new Color(1f, 1f, 0f, 0.3f); // Semi-transparent yellow
+            Vector3 center = transform.position;
+            float radius = viewData.cardRadius;
+            
+            // Draw circle on X-Z plane
+            int segments = 32;
+            Vector3 prevPoint = center + new Vector3(radius, 0, 0);
+            for (int i = 1; i <= segments; i++)
+            {
+                float angle = (float)i / segments * 360f * Mathf.Deg2Rad;
+                Vector3 newPoint = center + new Vector3(
+                    Mathf.Cos(angle) * radius,
+                    0,
+                    Mathf.Sin(angle) * radius
+                );
+                Gizmos.DrawLine(prevPoint, newPoint);
+                prevPoint = newPoint;
+            }
         }
     }
 }

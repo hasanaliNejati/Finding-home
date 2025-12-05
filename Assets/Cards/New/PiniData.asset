@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: PiniData
   m_EditorClassIdentifier: Assembly-CSharp::Script.PiniDataSo
   type: Pini
-  sprite: {fileID: 6937817954938267909, guid: 39e3b6540ffb26541afb26fae98815c8, type: 3}
+  sprite: {fileID: 21300000, guid: c6f319f880d0a014aad03ee6f8bf3bd7, type: 3}
   category: 5
   cardViewPrefab: {fileID: 6669065185109236367, guid: 8fcff8238dcf0d24b973ab96948feb88, type: 3}
   value: 0
@@ -22,8 +22,8 @@ MonoBehaviour:
   upgradeTarget: {fileID: 0}
   maxHealth: 5
   maxFood: 5
-  foodDecreaseRate: 0.01
-  healthDecreaseRate: 0.01
+  foodDecreaseRate: 0.05
+  healthDecreaseRate: 0.05
   foodPerMeal: 1
   eatingDuration: 1
   deathDropCard: {fileID: 11400000, guid: 62c5ab9dc64390744b81e8ea83cb122c, type: 2}

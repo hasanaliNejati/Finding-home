@@ -59,21 +59,7 @@ public class Card
         topCard.BottomCardId = this.Id;
         this.TopCardId = topCard.Id;
 
-        // If this (bottom) is a PiniCard and topCard is food, start eating
-        if (this is PiniCard piniCard && topCard.Data?.category == Script.CardCategory.Food)
-        {
-            piniCard.OnCardAddedOnTop(topCard);
-        }
-        // If topCard is a PiniCard and this (bottom) is food, start eating
-        else if (topCard is PiniCard _topPini && this.Data?.category == Script.CardCategory.Food)
-        {
-            _topPini.OnFoodBelow(this);
-            
-        }
-        else
-        {
-            CheckCombination();
-        }
+        CheckCombination();
 
         return true;
     }

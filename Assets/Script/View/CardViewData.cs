@@ -35,6 +35,16 @@ namespace Script.View
         [Header("Animation")]
         [Tooltip("Reference to Visual card GameObject (child of Canvas) for jump animation")]
         [SerializeField] public Transform visualCard;
+        
+        [Header("Separation Force")]
+        [Tooltip("Radius of the card for collision detection (in world units)")]
+        [SerializeField] public float cardRadius = 0.5f;
+        [Tooltip("Strength of separation force when cards overlap")]
+        [SerializeField] public float separationForce = 5f;
+        [Tooltip("Damping factor to slow down movement over time")]
+        [SerializeField] public float damping = 0.9f;
+        [Tooltip("Maximum speed for separation movement")]
+        [SerializeField] public float maxSpeed = 2f;
 
     }
 }

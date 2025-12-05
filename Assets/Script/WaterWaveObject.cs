@@ -1,3 +1,4 @@
+using Script;
 using UnityEngine;
 
 public class WaterWaveObject : MonoBehaviour
@@ -8,6 +9,9 @@ public class WaterWaveObject : MonoBehaviour
     private float phaseOffset;
     private float time;
     
+    private SpriteRenderer spriteRenderer;
+    private int baseSortingOrder;
+    
     public float PhaseOffset => phaseOffset;
     
     public void Initialize(Vector3 basePos, float speed, float amplitude, float offset)
@@ -17,6 +21,12 @@ public class WaterWaveObject : MonoBehaviour
         waveAmplitude = amplitude;
         phaseOffset = offset;
         time = 0f;
+        
+        // Get SpriteRenderer
+        spriteRenderer = GetComponent<SpriteRenderer>();
+        // baseSortingOrder را 0 قرار می‌دهیم تا همه از یک base شروع کنند
+        // این باعث می‌شود که sorting order فقط بر اساس Z position باشد
+        baseSortingOrder = 0;
     }
     
     public void UpdateSettings(float speed, float amplitude, float offset)
@@ -43,6 +53,24 @@ public class WaterWaveObject : MonoBehaviour
         
         // اعمال حرکت به موقعیت
         transform.position = basePosition + new Vector3(offsetX, offsetY, 0f);
+        
+        // به‌روزرسانی sorting order بر اساس موقعیت Z فعلی
+        UpdateSortingOrder();
+    }
+    
+    /// <summary>
+    /// Updates sorting order based on current Z position
+    /// </summary>
+    private void UpdateSortingOrder()
+    {
+        if (spriteRenderer != null)
+        {
+            spriteRenderer.sortingOrder = SortingOrderUtility.GetSortingOrderFromZ(
+                transform.position.z,
+                baseSortingOrder,
+                SortingOrderUtility.DefaultSortingOrderMultiplier
+            );
+        }
     }
     
     // برای تنظیم موقعیت پایه در runtime

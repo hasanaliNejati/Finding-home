@@ -58,52 +58,15 @@ namespace Script.View
             if (piniCard == null)
                 return;
 
-            // Update health fill
+            // Hide food and health UI elements since we removed the hunger system
             if (healthFillImage != null)
-            {
-                healthFillImage.fillAmount = piniCard.CurrentHealth / piniCard.MaxHealth;
-            }
+                healthFillImage.gameObject.SetActive(false);
             if (healthText != null)
-            {
-                healthText.text = $"{Mathf.CeilToInt(piniCard.CurrentHealth)}/{piniCard.MaxHealth}";
-            }
-
-            // Update food fill
+                healthText.gameObject.SetActive(false);
             if (foodFillImage != null)
-            {
-                foodFillImage.fillAmount = piniCard.CurrentFood / piniCard.MaxFood;
-            }
+                foodFillImage.gameObject.SetActive(false);
             if (foodText != null)
-            {
-                foodText.text = $"{Mathf.CeilToInt(piniCard.CurrentFood)}/{piniCard.MaxFood}";
-            }
-
-            // Update visual based on hunger state
-            UpdateHungerVisual();
-
-            // Show eating progress
-            if (piniCard.IsEating && viewData.progressSlider != null)
-            {
-                viewData.progressSlider.gameObject.SetActive(true);
-                viewData.progressSlider.value = piniCard.EatingProgress / piniCard.EatingDuration;
-            }
-        }
-
-        private void UpdateHungerVisual()
-        {
-            bool isHungry = piniCard.IsHungry;
-
-            // Change food bar color based on hunger
-            if (foodFillImage != null)
-            {
-                foodFillImage.color = isHungry ? hungryFoodColor : normalFoodColor;
-            }
-
-            // Change background color
-            if (cardBackground != null)
-            {
-                cardBackground.color = isHungry ? hungryBackgroundColor : normalBackgroundColor;
-            }
+                foodText.gameObject.SetActive(false);
         }
     }
 }

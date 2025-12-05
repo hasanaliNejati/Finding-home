@@ -20,6 +20,13 @@ namespace Script
         [SerializeField] private Transform cardParentTransform;
         [SerializeField] private InitialCardsSo initialCardsSo;
 
+        [Header("Game Stats")]
+        [SerializeField] private int maxCardLimit = 20;
+        [SerializeField] private int foodPerCreature = 2;
+        [SerializeField] private int maxPollutionCount = 15;
+
+        public event Action OnGameOver;
+
         private void Awake()
         {
             if (Instance == null)
@@ -219,6 +226,100 @@ namespace Script
                 var cardData = card.Data ?? allCardSo.GetCardDataByType(card.Type);
                 cardView.Refresh(card, cardData);
             }
+        }
+
+        // Game Stats Methods
+        public int GetCurrentCardCount()
+        {
+            return Cards.Count;
+        }
+
+        public int GetMaxCardLimit()
+        {
+            return maxCardLimit;
+        }
+
+        public int GetCurrentFoodCount()
+        {
+            int foodCount = 0;
+            foreach (var card in Cards.Values)
+            {
+                if (card.Data?.category == CardCategory.Food)
+                {
+                    foodCount++;
+                }
+            }
+            return foodCount;
+        }
+
+        public int GetRequiredFoodCount()
+        {
+            int creatureCount = 0;
+            foreach (var card in Cards.Values)
+            {
+                if (card.Data?.category == CardCategory.Creature)
+                {
+                    creatureCount++;
+                }
+            }
+            return creatureCount * foodPerCreature;
+        }
+
+        public float GetHealthStatus()
+        {
+            int pollutionCount = 0;
+            foreach (var card in Cards.Values)
+            {
+                if (card.Data?.category == CardCategory.Pollution)
+                {
+                    pollutionCount++;
+                }
+            }
+            if (maxPollutionCount <= 0)
+                return 0f;
+            
+            return Mathf.Clamp01((float)pollutionCount / maxPollutionCount);
+        }
+
+        public int GetPollutionCount()
+        {
+            int pollutionCount = 0;
+            foreach (var card in Cards.Values)
+            {
+                if (card.Data?.category == CardCategory.Pollution)
+                {
+                    pollutionCount++;
+                }
+            }
+            return pollutionCount;
+        }
+
+        public int GetMaxPollutionCount()
+        {
+            return maxPollutionCount;
+        }
+
+        public int GetPenguinCount()
+        {
+            int penguinCount = 0;
+            foreach (var card in Cards.Values)
+            {
+                if (card is PiniCard && card.Data?.category == CardCategory.Creature)
+                {
+                    penguinCount++;
+                }
+            }
+            return penguinCount;
+        }
+
+        public bool AreAllPenguinsDead()
+        {
+            return GetPenguinCount() == 0;
+        }
+
+        public void ShowGameOverPanel()
+        {
+            OnGameOver?.Invoke();
         }
     }
 }

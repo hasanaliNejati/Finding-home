@@ -24,8 +24,15 @@ namespace Script.View
         [SerializeField] private TextMeshProUGUI counterText;
         [SerializeField] private Image rewardIcon;
         [SerializeField] private Slider progressSlider;
+        
+        [Header("One-Time Use")]
+        [Tooltip("If true, the shop will be disabled after first successful purchase")]
+        [SerializeField] private bool isOneTimeUse = false;
+        [Tooltip("Button to disable/destroy after purchase (optional)")]
+        [SerializeField] private GameObject buttonToDisable;
 
         private int currentProgress = 0;
+        private bool hasBeenUsed = false;
 
         private void Start()
         {
@@ -106,6 +113,13 @@ namespace Script.View
                 GamePlayManager.Instance.AddCard(newCard, spawnPosition);
                 
                 Debug.Log($"[ShopZone] Purchased {rewardCardType.type}!");
+                
+                // Handle one-time use
+                if (isOneTimeUse && !hasBeenUsed)
+                {
+                    hasBeenUsed = true;
+                    DisableButton();
+                }
             }
 
             UpdateUI();
@@ -158,6 +172,16 @@ namespace Script.View
             if (rewardIcon != null && rewardCardType != null && rewardCardType.sprite != null)
             {
                 rewardIcon.sprite = rewardCardType.sprite;
+            }
+        }
+
+        private void DisableButton()
+        {
+            if (buttonToDisable != null)
+            {
+                gameObject.SetActive(false);
+                buttonToDisable.SetActive(false);
+                Debug.Log("[ShopZone] Button disabled after one-time purchase.");
             }
         }
 
